@@ -1,0 +1,61 @@
+<div class="modal-overlay" (click)="onCancel()">
+  <div class="modal-content" (click)="$event.stopPropagation()">
+    <div class="modal-header">
+      <h2>{{ isEditMode ? 'Edit Task' : 'New Task' }}</h2>
+      <button class="btn-close" (click)="onCancel()">&times;</button>
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()">
+      <div class="form-group">
+        <label for="title">Title *</label>
+        <input
+          id="title"
+          type="text"
+          formControlName="title"
+          placeholder="Enter task title"
+        />
+        @if (form.get('title')?.touched && form.get('title')?.errors) {
+          <span class="error">
+            @if (form.get('title')?.errors?.['required']) {
+              Title is required
+            } @else if (form.get('title')?.errors?.['minlength']) {
+              Title must be at least 3 characters
+            }
+          </span>
+        }
+      </div>
+
+      <div class="form-group">
+        <label for="description">Description</label>
+        <textarea
+          id="description"
+          formControlName="description"
+          placeholder="Enter task description"
+          rows="3"
+        ></textarea>
+      </div>
+
+      <div class="form-group">
+        <label for="priority">Priority *</label>
+        <select id="priority" formControlName="priority">
+          @for (p of priorities; track p) {
+            <option [value]="p">{{ p | titlecase }}</option>
+          }
+        </select>
+      </div>
+
+      <div class="form-actions">
+        <button type="button" class="btn-secondary" (click)="onCancel()">
+          Cancel
+        </button>
+        <button
+          type="submit"
+          class="btn-primary"
+          [disabled]="isSubmitting()"
+        >
+          {{ isEditMode ? 'Update' : 'Create' }}
+        </button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,102 @@
+[
+  {
+    "id": "a1b2c3d4-e5f6-4a5b-8c9d-0e1f2a3b4c5d",
+    "title": "Set up project structure",
+    "description": "Initialize the Angular project with proper folder structure and routing",
+    "status": "done",
+    "priority": "high",
+    "archived": false,
+    "createdAt": "2026-01-10T09:00:00.000Z",
+    "updatedAt": "2026-01-12T14:30:00.000Z"
+  },
+  {
+    "id": "b2c3d4e5-f6a7-5b6c-9d0e-1f2a3b4c5d6e",
+    "title": "Implement user authentication",
+    "description": "Add login and registration forms with JWT token handling",
+    "status": "in-progress",
+    "priority": "high",
+    "archived": false,
+    "createdAt": "2026-01-11T10:00:00.000Z",
+    "updatedAt": "2026-01-18T11:20:00.000Z"
+  },
+  {
+    "id": "c3d4e5f6-a7b8-6c7d-0e1f-2a3b4c5d6e7f",
+    "title": "Design dashboard layout",
+    "description": "Create responsive dashboard with sidebar navigation and main content area",
+    "status": "in-progress",
+    "priority": "medium",
+    "archived": false,
+    "createdAt": "2026-01-12T08:30:00.000Z",
+    "updatedAt": "2026-01-17T16:45:00.000Z"
+  },
+  {
+    "id": "d4e5f6a7-b8c9-7d8e-1f2a-3b4c5d6e7f8a",
+    "title": "Add unit tests for services",
+    "description": "Write comprehensive unit tests for TaskService and AuthService",
+    "status": "todo",
+    "priority": "high",
+    "archived": false,
+    "createdAt": "2026-01-13T11:00:00.000Z",
+    "updatedAt": "2026-01-13T11:00:00.000Z"
+  },
+  {
+    "id": "e5f6a7b8-c9d0-8e9f-2a3b-4c5d6e7f8a9b",
+    "title": "Implement drag and drop",
+    "description": "Allow users to drag tasks between columns to change status",
+    "status": "todo",
+    "priority": "medium",
+    "archived": false,
+    "createdAt": "2026-01-14T09:15:00.000Z",
+    "updatedAt": "2026-01-14T09:15:00.000Z"
+  },
+  {
+    "id": "f6a7b8c9-d0e1-9f0a-3b4c-5d6e7f8a9b0c",
+    "title": "Add task filtering",
+    "description": "Implement filters for priority, status, and search by title",
+    "status": "todo",
+    "priority": "low",
+    "archived": false,
+    "createdAt": "2026-01-15T13:00:00.000Z",
+    "updatedAt": "2026-01-15T13:00:00.000Z"
+  },
+  {
+    "id": "a7b8c9d0-e1f2-0a1b-4c5d-6e7f8a9b0c1d",
+    "title": "Write API documentation",
+    "description": "Document all REST endpoints with examples and response schemas",
+    "status": "done",
+    "priority": "medium",
+    "archived": false,
+    "createdAt": "2026-01-09T10:00:00.000Z",
+    "updatedAt": "2026-01-11T15:00:00.000Z"
+  },
+  {
+    "id": "b8c9d0e1-f2a3-1b2c-5d6e-7f8a9b0c1d2e",
+    "title": "Fix mobile responsiveness",
+    "description": "Ensure all components display correctly on mobile devices",
+    "status": "todo",
+    "priority": "medium",
+    "archived": false,
+    "createdAt": "2026-01-16T14:30:00.000Z",
+    "updatedAt": "2026-01-16T14:30:00.000Z"
+  },
+  {
+    "id": "c9d0e1f2-a3b4-2c3d-6e7f-8a9b0c1d2e3f",
+    "title": "Initial project setup",
+    "description": "Create repository and configure CI/CD pipeline",
+    "status": "done",
+    "priority": "high",
+    "archived": true,
+    "createdAt": "2026-01-05T08:00:00.000Z",
+    "updatedAt": "2026-01-06T12:00:00.000Z"
+  },
+  {
+    "id": "d0e1f2a3-b4c5-3d4e-7f8a-9b0c1d2e3f4a",
+    "title": "Research testing frameworks",
+    "description": "Evaluate Vitest, Jest, and Playwright for testing strategy",
+    "status": "done",
+    "priority": "low",
+    "archived": true,
+    "createdAt": "2026-01-06T09:00:00.000Z",
+    "updatedAt": "2026-01-08T11:00:00.000Z"
+  }
+]

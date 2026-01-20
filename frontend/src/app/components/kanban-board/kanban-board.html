@@ -1,0 +1,31 @@
+<div class="kanban-container">
+  <header class="kanban-header">
+    <h1>Kanban Board</h1>
+    <div class="header-stats">
+      <span class="stat">Total: {{ taskCounts().total }}</span>
+      <span class="stat todo">To Do: {{ taskCounts().todo }}</span>
+      <span class="stat in-progress">In Progress: {{ taskCounts().inProgress }}</span>
+      <span class="stat done">Done: {{ taskCounts().done }}</span>
+    </div>
+    <button class="btn-add" (click)="openNewTaskForm()">+ Add Task</button>
+  </header>
+
+  <div class="board">
+    @for (column of columns(); track column.id) {
+      <app-task-column
+        [column]="column"
+        (taskEdit)="openEditTaskForm($event)"
+        (taskMove)="onTaskMoved($event)"
+        (taskDelete)="onTaskDeleted($event)"
+        (taskArchive)="onTaskArchived($event)"
+      />
+    }
+  </div>
+</div>
+
+@if (showTaskForm()) {
+  <app-task-form
+    [task]="editingTask()"
+    (formClose)="closeTaskForm()"
+  />
+}

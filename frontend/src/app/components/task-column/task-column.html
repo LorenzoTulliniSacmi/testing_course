@@ -1,0 +1,25 @@
+<div
+  class="column"
+  [class]="column().id"
+  (dragover)="onDragOver($event)"
+  (dragleave)="onDragLeave($event)"
+  (drop)="onDrop($event)"
+>
+  <div class="column-header">
+    <h2>{{ column().title }}</h2>
+    <span class="task-count">{{ column().tasks.length }}</span>
+  </div>
+
+  <div class="tasks-container">
+    @for (task of column().tasks; track task.id) {
+      <app-task-card
+        [task]="task"
+        (edit)="onTaskEdit($event)"
+        (delete)="onTaskDelete($event)"
+        (archive)="onTaskArchive($event)"
+      />
+    } @empty {
+      <div class="empty-state">No tasks yet</div>
+    }
+  </div>
+</div>

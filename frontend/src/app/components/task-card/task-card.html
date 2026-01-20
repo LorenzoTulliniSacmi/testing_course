@@ -1,0 +1,33 @@
+<div
+  class="task-card"
+  [class]="getPriorityClass()"
+  [class.stale]="isStale()"
+  draggable="true"
+  (dragstart)="onDragStart($event)"
+>
+  <div class="task-header">
+    <span class="priority-badge">{{ task().priority }}</span>
+    <div class="task-actions">
+      @if (task().status === 'done') {
+        <button class="btn-icon" (click)="onArchive()" title="Archive">📦</button>
+      }
+      <button class="btn-icon" (click)="onEdit()" title="Edit">✏️</button>
+      <button class="btn-icon" (click)="onDelete()" title="Delete">🗑️</button>
+    </div>
+  </div>
+
+  <h3 class="task-title">{{ task().title }}</h3>
+
+  @if (task().description) {
+    <p class="task-description">{{ task().description }}</p>
+  }
+
+  <div class="task-footer">
+    <span class="task-date" [title]="task().updatedAt | date:'medium'">
+      Updated {{ task().updatedAt | date:'shortDate' }}
+    </span>
+    @if (isStale()) {
+      <span class="stale-badge">Stale</span>
+    }
+  </div>
+</div>
