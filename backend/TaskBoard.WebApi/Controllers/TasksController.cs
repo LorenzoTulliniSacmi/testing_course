@@ -66,8 +66,8 @@ public class TasksController : ControllerBase
     [SwaggerResponse(400, "Validation error", typeof(ErrorDto))]
     public async Task<ActionResult<TaskDto>> Create([FromBody] CreateTaskDto dto)
     {
-        if (string.IsNullOrWhiteSpace(dto.Title) || string.IsNullOrWhiteSpace(dto.Description))
-            return BadRequest(new ErrorDto { Error = "Title and description are required" });
+        if (string.IsNullOrWhiteSpace(dto.Title))
+            return BadRequest(new ErrorDto { Error = "Title is required" });
 
         var task = await _taskService.CreateAsync(dto.Title, dto.Description, dto.Priority);
         return CreatedAtAction(nameof(GetById), new { id = task.Id }, task.Adapt<TaskDto>());

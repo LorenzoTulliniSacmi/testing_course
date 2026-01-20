@@ -4,7 +4,7 @@
     "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
-      "launchBrowser": false,
+      "launchBrowser": true,
       "launchUrl": "api-docs",
       "applicationUrl": "http://localhost:3000",
       "environmentVariables": {
