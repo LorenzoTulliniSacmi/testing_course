@@ -134,4 +134,240 @@ describe('Kanban Board Component', () => {
     expect(compiled.nativeElement.textContent).toContain('New Integration Test Task');
     expect(compiled.nativeElement.textContent).toContain('Total: 1');
   });
+
+  describe('Edit Mode Lifecycle', () => {
+    const existingTasks = [
+      { id: '1', title: 'Task One', description: 'Desc 1', status: 'todo', priority: 'high', archived: false, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
+      { id: '2', title: 'Task Two', description: 'Desc 2', status: 'todo', priority: 'medium', archived: false, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' }
+    ];
+
+    it('opens edit form with correct task data', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      const debugEl = fixture.debugElement;
+      const editButton = debugEl.query(By.css('.btn-icon[title="Edit"]'));
+      editButton.nativeElement.click();
+      fixture.detectChanges();
+
+      // Form should show "Edit Task" and have pre-filled values
+      expect(debugEl.nativeElement.textContent).toContain('Edit Task');
+
+      const titleInput = debugEl.query(By.css('#title')).nativeElement;
+      expect(titleInput.value).toBe('Task One');
+    });
+
+    it('clears editingTask signal when switching to new task mode', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      const debugEl = fixture.debugElement;
+
+      // First open edit mode
+      const editButton = debugEl.query(By.css('.btn-icon[title="Edit"]'));
+      editButton.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(debugEl.nativeElement.textContent).toContain('Edit Task');
+
+      // Close the form
+      const overlay = debugEl.query(By.css('.modal-overlay'));
+      overlay.nativeElement.click();
+      fixture.detectChanges();
+
+      // Open new task form
+      const addButton = debugEl.query(By.css('.btn-add'));
+      addButton.nativeElement.click();
+      fixture.detectChanges();
+
+      // Should show "New Task" not "Edit Task"
+      expect(debugEl.nativeElement.textContent).toContain('New Task');
+      expect(debugEl.nativeElement.textContent).not.toContain('Edit Task');
+
+      // Form fields should be empty
+      const titleInput = debugEl.query(By.css('#title')).nativeElement;
+      expect(titleInput.value).toBe('');
+    });
+
+    it('updates form when editing different task without closing', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      const debugEl = fixture.debugElement;
+
+      // Edit first task
+      const editButtons = debugEl.queryAll(By.css('.btn-icon[title="Edit"]'));
+      editButtons[0].nativeElement.click();
+      fixture.detectChanges();
+
+      let titleInput = debugEl.query(By.css('#title')).nativeElement;
+      expect(titleInput.value).toBe('Task One');
+
+      // Close and edit second task
+      const overlay = debugEl.query(By.css('.modal-overlay'));
+      overlay.nativeElement.click();
+      fixture.detectChanges();
+
+      editButtons[1].nativeElement.click();
+      fixture.detectChanges();
+
+      titleInput = debugEl.query(By.css('#title')).nativeElement;
+      expect(titleInput.value).toBe('Task Two');
+    });
+
+    it('form submission updates task instead of creating duplicate', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      const debugEl = fixture.debugElement;
+
+      // Open edit form for first task
+      const editButton = debugEl.query(By.css('.btn-icon[title="Edit"]'));
+      editButton.nativeElement.click();
+      fixture.detectChanges();
+
+      // Modify the title
+      const titleInput = debugEl.query(By.css('#title'));
+      titleInput.nativeElement.value = 'Updated Task Title';
+      titleInput.nativeElement.dispatchEvent(new Event('input'));
+      fixture.detectChanges();
+
+      // Submit
+      const submitButton = debugEl.query(By.css('button[type="submit"]'));
+      submitButton.nativeElement.click();
+      fixture.detectChanges();
+
+      // Should call PATCH not POST
+      const updateReq = httpController.expectOne('http://localhost:3000/api/tasks/1');
+      expect(updateReq.request.method).toBe('PATCH');
+
+      updateReq.flush({
+        id: '1',
+        title: 'Updated Task Title',
+        description: 'Desc 1',
+        status: 'todo',
+        priority: 'high',
+        archived: false,
+        createdAt: '2024-01-01T00:00:00Z',
+        updatedAt: '2024-01-02T00:00:00Z'
+      });
+      fixture.detectChanges();
+
+      // Verify task count didn't increase (no duplicate created)
+      expect(debugEl.nativeElement.textContent).toContain('Total: 2');
+
+      // Verify updated title appears
+      expect(debugEl.nativeElement.textContent).toContain('Updated Task Title');
+    });
+
+    it('closeTaskForm resets both showTaskForm and editingTask signals', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      const debugEl = fixture.debugElement;
+
+      // Open edit form
+      const editButton = debugEl.query(By.css('.btn-icon[title="Edit"]'));
+      editButton.nativeElement.click();
+      fixture.detectChanges();
+
+      expect(component.showTaskForm()).toBe(true);
+      expect(component.editingTask()).not.toBeNull();
+
+      // Close form
+      component.closeTaskForm();
+      fixture.detectChanges();
+
+      expect(component.showTaskForm()).toBe(false);
+      expect(component.editingTask()).toBeNull();
+    });
+
+    it('openNewTaskForm clears any previous editing context', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      // Manually set editing task
+      component.editingTask.set({
+        id: '1',
+        title: 'Task One',
+        description: 'Desc 1',
+        status: 'todo',
+        priority: 'high',
+        archived: false,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01')
+      });
+
+      // Call openNewTaskForm
+      component.openNewTaskForm();
+
+      expect(component.editingTask()).toBeNull();
+      expect(component.showTaskForm()).toBe(true);
+    });
+
+    it('openEditTaskForm sets the correct task for editing', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush(existingTasks);
+      fixture.detectChanges();
+
+      const taskToEdit = {
+        id: '2',
+        title: 'Task Two',
+        description: 'Desc 2',
+        status: 'todo' as const,
+        priority: 'medium' as const,
+        archived: false,
+        createdAt: new Date('2024-01-01'),
+        updatedAt: new Date('2024-01-01')
+      };
+
+      component.openEditTaskForm(taskToEdit);
+
+      expect(component.editingTask()).toEqual(taskToEdit);
+      expect(component.showTaskForm()).toBe(true);
+    });
+  });
+
+  describe('Task Move Integration', () => {
+    it('calls taskService.moveTask when onTaskMoved is triggered', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush([
+        { id: '1', title: 'Task', status: 'todo', priority: 'medium', archived: false, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' }
+      ]);
+      fixture.detectChanges();
+
+      component.onTaskMoved({ taskId: '1', newStatus: 'in-progress' });
+
+      const patchReq = httpController.expectOne('http://localhost:3000/api/tasks/1');
+      expect(patchReq.request.method).toBe('PATCH');
+      expect(patchReq.request.body).toEqual({ status: 'in-progress' });
+    });
+  });
+
+  describe('Task Delete Integration', () => {
+    it('calls taskService.deleteTask when onTaskDeleted is triggered', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush([
+        { id: '1', title: 'Task', status: 'todo', priority: 'medium', archived: false, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' }
+      ]);
+      fixture.detectChanges();
+
+      component.onTaskDeleted('1');
+
+      const deleteReq = httpController.expectOne('http://localhost:3000/api/tasks/1');
+      expect(deleteReq.request.method).toBe('DELETE');
+    });
+  });
+
+  describe('Task Archive Integration', () => {
+    it('calls taskService.archiveTask when onTaskArchived is triggered', () => {
+      httpController.expectOne('http://localhost:3000/api/tasks').flush([
+        { id: '1', title: 'Task', status: 'done', priority: 'medium', archived: false, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' }
+      ]);
+      fixture.detectChanges();
+
+      component.onTaskArchived('1');
+
+      const patchReq = httpController.expectOne('http://localhost:3000/api/tasks/1');
+      expect(patchReq.request.method).toBe('PATCH');
+      expect(patchReq.request.body).toEqual({ archived: true });
+    });
+  });
 });

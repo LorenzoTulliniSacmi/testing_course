@@ -83,42 +83,109 @@ test.describe('Kanban Board E2E Tests', () => {
 
   // EXERCISE 15: Write E2E test for drag and drop
   // Test that a task can be dragged from "To Do" to "In Progress"
-  test.skip('should move task via drag and drop', async ({ page }) => {
-    // TODO: Implement this test
-    // Hints:
-    // 1. Create a task first
-    // 2. Use page.dragAndDrop() or manual drag simulation
-    // 3. Verify the task appears in the new column
+  test('should move task via drag and drop', async ({ page }) => {
+    await page.goto('/');
+
+    // Create a task first
+    await page.click('.btn-add');
+    await page.fill('#title', 'Drag Me Task');
+    await page.click('button[type="submit"]');
+
+    // Wait for task to appear in To Do column
+    await expect(page.locator('app-task-column').first().getByText('Drag Me Task')).toBeVisible();
+
+    // Get the task card and the "In Progress" column
+    const taskCard = page.locator('.task-card').filter({ hasText: 'Drag Me Task' });
+    const inProgressColumn = page.locator('app-task-column').nth(1).locator('.column');
+
+    // Perform drag and drop
+    await taskCard.dragTo(inProgressColumn);
+
+    // Verify the task appears in the In Progress column
+    await expect(page.locator('app-task-column').nth(1).getByText('Drag Me Task')).toBeVisible();
+
+    // Verify the task is no longer in the To Do column
+    await expect(page.locator('app-task-column').first().getByText('Drag Me Task')).not.toBeVisible();
   });
 
   // EXERCISE 16: Write E2E test for form validation
   // Test that submitting with empty title shows error message
-  test.skip('should show validation error for empty title', async ({ page }) => {
-    // TODO: Implement this test
-    // Hints:
-    // 1. Open the task form
-    // 2. Try to submit without entering title
-    // 3. Verify error message is displayed
+  test('should show validation error for empty title', async ({ page }) => {
+    await page.goto('/');
+
+    // Open the task form
+    await page.click('.btn-add');
+
+    // Try to submit without entering title
+    await page.click('button[type="submit"]');
+
+    // Verify error message is displayed
+    await expect(page.locator('.error')).toBeVisible();
+    await expect(page.locator('.error')).toContainText('Title is required');
   });
 
   // EXERCISE 17: Write E2E test for task count updates
   // Test that header stats update correctly when tasks are created/moved
-  test.skip('should update task counts in header', async ({ page }) => {
-    // TODO: Implement this test
-    // Hints:
-    // 1. Check initial counts (all zeros)
-    // 2. Create tasks
-    // 3. Verify counts update correctly
+  test('should update task counts in header', async ({ page }) => {
+    await page.goto('/');
+
+    // Check initial counts (all zeros)
+    await expect(page.getByText('Total: 0')).toBeVisible();
+    await expect(page.getByText('To Do: 0')).toBeVisible();
+    await expect(page.getByText('In Progress: 0')).toBeVisible();
+    await expect(page.getByText('Done: 0')).toBeVisible();
+
+    // Create first task
+    await page.click('.btn-add');
+    await page.fill('#title', 'Task One');
+    await page.click('button[type="submit"]');
+
+    // Verify counts update after first task
+    await expect(page.getByText('Total: 1')).toBeVisible();
+    await expect(page.getByText('To Do: 1')).toBeVisible();
+
+    // Create second task
+    await page.click('.btn-add');
+    await page.fill('#title', 'Task Two');
+    await page.click('button[type="submit"]');
+
+    // Verify counts update after second task
+    await expect(page.getByText('Total: 2')).toBeVisible();
+    await expect(page.getByText('To Do: 2')).toBeVisible();
+
+    // Drag first task to In Progress
+    const taskCard = page.locator('.task-card').filter({ hasText: 'Task One' });
+    const inProgressColumn = page.locator('app-task-column').nth(1).locator('.column');
+    await taskCard.dragTo(inProgressColumn);
+
+    // Verify counts update after move
+    await expect(page.getByText('Total: 2')).toBeVisible();
+    await expect(page.getByText('To Do: 1')).toBeVisible();
+    await expect(page.getByText('In Progress: 1')).toBeVisible();
   });
 
   // EXERCISE 18: Write E2E test for persistence
-  // Test that tasks persist after page reload (localStorage)
-  test.skip('should persist tasks after page reload', async ({ page }) => {
-    // TODO: Implement this test
-    // Hints:
-    // 1. Create a task
-    // 2. Reload the page
-    // 3. Verify task still exists
+  // Test that tasks persist after page reload (backend API)
+  test('should persist tasks after page reload', async ({ page }) => {
+    await page.goto('/');
+
+    // Create a task
+    await page.click('.btn-add');
+    await page.fill('#title', 'Persistent Task');
+    await page.fill('#description', 'This should persist');
+    await page.selectOption('#priority', 'high');
+    await page.click('button[type="submit"]');
+
+    // Verify task appears
+    await expect(page.getByText('Persistent Task')).toBeVisible();
+    await expect(page.getByText('Total: 1')).toBeVisible();
+
+    // Reload the page
+    await page.reload();
+
+    // Verify task still exists after reload
+    await expect(page.getByText('Persistent Task')).toBeVisible();
+    await expect(page.getByText('Total: 1')).toBeVisible();
   });
 });
 
