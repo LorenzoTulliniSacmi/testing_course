@@ -1,6 +1,6 @@
 import { Injectable, signal, computed, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Task, TaskStatus, TaskPriority, Column, COLUMN_TITLES } from '../models/task.model';
+import { Task, TaskStatus, TaskPriority } from '../models/task.model';
 
 const API_URL = 'http://localhost:3000/api/tasks';
 
@@ -22,15 +22,8 @@ export class TaskService {
   private http = inject(HttpClient);
   private tasks = signal<Task[]>([]);
 
-  // Computed signal for columns (excludes archived tasks)
-  columns = computed<Column[]>(() => {
-    const statuses: TaskStatus[] = ['todo', 'in-progress', 'done'];
-    return statuses.map(status => ({
-      id: status,
-      title: COLUMN_TITLES[status],
-      tasks: this.tasks().filter(task => task.status === status && !task.archived)
-    }));
-  });
+  // Computed signal for active (non-archived) tasks
+  activeTasks = computed(() => this.tasks().filter(t => !t.archived));
 
   // Computed signal for task counts (excludes archived)
   taskCounts = computed(() => {

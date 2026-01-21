@@ -1,25 +1,22 @@
-import { Component, inject, input, output, signal, OnInit } from '@angular/core';
+import { Component, inject, input, output, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { TitleCasePipe } from '@angular/common';
-import { Task, TaskPriority } from '../../models/task.model';
-import { TaskService } from '../../services/task.service';
+import { Task, TaskFormData, TaskPriority } from '../../models/task.model';
 
 @Component({
   selector: 'app-task-form',
-  standalone: true,
   imports: [ReactiveFormsModule, TitleCasePipe],
   templateUrl: './task-form.html',
   styleUrl: './task-form.scss'
 })
 export class TaskFormComponent implements OnInit {
   private fb = inject(FormBuilder);
-  private taskService = inject(TaskService);
 
   task = input<Task | null>(null);
+  formSubmit = output<TaskFormData>();
   formClose = output<void>();
 
   form!: FormGroup;
-  isSubmitting = signal(false);
 
   priorities: TaskPriority[] = ['low', 'medium', 'high'];
 
@@ -41,18 +38,8 @@ export class TaskFormComponent implements OnInit {
       return;
     }
 
-    this.isSubmitting.set(true);
-
-    const { title, description, priority } = this.form.value;
-
-    if (this.isEditMode) {
-      this.taskService.updateTask(this.task()!.id, { title, description, priority });
-    } else {
-      this.taskService.addTask(title, description, priority);
-    }
-
+    this.formSubmit.emit(this.form.value as TaskFormData);
     this.formClose.emit();
-    this.isSubmitting.set(false);
   }
 
   onCancel(): void {

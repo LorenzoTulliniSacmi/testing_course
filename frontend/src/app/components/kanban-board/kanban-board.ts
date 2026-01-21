@@ -2,11 +2,10 @@ import { Component, inject, signal } from '@angular/core';
 import { TaskService } from '../../services/task.service';
 import { TaskColumnComponent } from '../task-column/task-column';
 import { TaskFormComponent } from '../task-form/task-form';
-import { Task, TaskStatus } from '../../models/task.model';
+import { Task, TaskFormData, TaskStatus, ColumnConfig } from '../../models/task.model';
 
 @Component({
   selector: 'app-kanban-board',
-  standalone: true,
   imports: [TaskColumnComponent, TaskFormComponent],
   templateUrl: './kanban-board.html',
   styleUrl: './kanban-board.scss'
@@ -14,8 +13,18 @@ import { Task, TaskStatus } from '../../models/task.model';
 export class KanbanBoardComponent {
   private taskService = inject(TaskService);
 
-  columns = this.taskService.columns;
+  readonly columns: readonly ColumnConfig[] = [
+    { id: 'todo', title: 'To Do' },
+    { id: 'in-progress', title: 'In Progress' },
+    { id: 'done', title: 'Done' }
+  ];
+
+  activeTasks = this.taskService.activeTasks;
   taskCounts = this.taskService.taskCounts;
+
+  tasksForStatus(status: TaskStatus): Task[] {
+    return this.activeTasks().filter(task => task.status === status);
+  }
 
   showTaskForm = signal(false);
   editingTask = signal<Task | null>(null);
@@ -33,6 +42,15 @@ export class KanbanBoardComponent {
   closeTaskForm(): void {
     this.showTaskForm.set(false);
     this.editingTask.set(null);
+  }
+
+  onFormSubmit(data: TaskFormData): void {
+    const task = this.editingTask();
+    if (task) {
+      this.taskService.updateTask(task.id, data);
+    } else {
+      this.taskService.addTask(data.title, data.description, data.priority);
+    }
   }
 
   onTaskMoved(event: { taskId: string; newStatus: TaskStatus }): void {

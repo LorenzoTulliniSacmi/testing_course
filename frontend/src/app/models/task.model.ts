@@ -13,10 +13,15 @@ export interface Task {
   updatedAt: Date;
 }
 
-export interface Column {
-  id: TaskStatus;
+export interface ColumnConfig {
+  readonly id: TaskStatus;
+  readonly title: string;
+}
+
+export interface TaskFormData {
   title: string;
-  tasks: Task[];
+  description: string;
+  priority: TaskPriority;
 }
 
 export const COLUMN_TITLES: Record<TaskStatus, string> = {
@@ -24,3 +29,18 @@ export const COLUMN_TITLES: Record<TaskStatus, string> = {
   'in-progress': 'In Progress',
   'done': 'Done'
 };
+
+
+export function createMockTask(overrides: Partial<Task> = {}): Task {
+  return {
+    id: 'default-id',
+    title: 'Default Task',
+    description: 'Default description',
+    status: 'todo',
+    priority: 'medium',
+    archived: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+    ...overrides
+  };
+}

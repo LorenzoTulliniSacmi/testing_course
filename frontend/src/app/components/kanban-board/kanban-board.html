@@ -11,9 +11,11 @@
   </header>
 
   <div class="board">
-    @for (column of columns(); track column.id) {
+    @for (column of columns; track column.id) {
       <app-task-column
-        [column]="column"
+        [status]="column.id"
+        [title]="column.title"
+        [tasks]="tasksForStatus(column.id)"
         (taskEdit)="openEditTaskForm($event)"
         (taskMove)="onTaskMoved($event)"
         (taskDelete)="onTaskDeleted($event)"
@@ -26,6 +28,7 @@
 @if (showTaskForm()) {
   <app-task-form
     [task]="editingTask()"
+    (formSubmit)="onFormSubmit($event)"
     (formClose)="closeTaskForm()"
   />
 }

@@ -7,7 +7,9 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "test:coverage": "ng test --coverage"
+    "test:coverage": "ng test --coverage",
+    "storybook": "ng run kanban-board:storybook",
+    "build-storybook": "ng run kanban-board:build-storybook"
   },
   "prettier": {
     "printWidth": 100,
@@ -34,11 +36,16 @@
     "tslib": "^2.3.0"
   },
   "devDependencies": {
+    "@angular-devkit/architect": "^0.2100.0",
+    "@angular-devkit/build-angular": "^21.0.0",
+    "@angular-devkit/core": "^21.0.0",
     "@angular/build": "^21.0.5",
     "@angular/cli": "^21.0.5",
     "@angular/compiler-cli": "^21.0.0",
+    "@angular/platform-browser-dynamic": "^21.0.0",
     "@playwright/test": "^1.57.0",
     "@types/node": "^25.0.8",
+    "@vitest/browser-playwright": "^4.0.17",
     "@vitest/coverage-v8": "^4.0.17",
     "jsdom": "^27.1.0",
     "typescript": "~5.9.2",

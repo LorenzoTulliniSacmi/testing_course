@@ -1,17 +1,17 @@
 <div
   class="column"
-  [class]="column().id"
+  [class]="status()"
   (dragover)="onDragOver($event)"
   (dragleave)="onDragLeave($event)"
   (drop)="onDrop($event)"
 >
   <div class="column-header">
-    <h2>{{ column().title }}</h2>
-    <span class="task-count">{{ column().tasks.length }}</span>
+    <h2>{{ title() }}</h2>
+    <span class="task-count">{{ tasks().length }}</span>
   </div>
 
   <div class="tasks-container">
-    @for (task of column().tasks; track task.id) {
+    @for (task of tasks(); track task.id) {
       <app-task-card
         [task]="task"
         (edit)="onTaskEdit($event)"

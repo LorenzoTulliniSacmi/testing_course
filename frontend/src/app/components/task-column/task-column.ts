@@ -1,19 +1,25 @@
 import { Component, input, output } from '@angular/core';
-import { Column, Task, TaskStatus } from '../../models/task.model';
+import type { Task, TaskStatus } from '../../models/task.model';
 import { TaskCardComponent } from '../task-card/task-card';
+
+export interface TaskMoveData {
+  taskId: string;
+  newStatus: TaskStatus;
+}
 
 @Component({
   selector: 'app-task-column',
-  standalone: true,
   imports: [TaskCardComponent],
   templateUrl: './task-column.html',
   styleUrl: './task-column.scss'
 })
 export class TaskColumnComponent {
-  column = input.required<Column>();
+  status = input.required<TaskStatus>();
+  title = input.required<string>();
+  tasks = input.required<Task[]>();
 
   taskEdit = output<Task>();
-  taskMove = output<{ taskId: string; newStatus: TaskStatus }>();
+  taskMove = output<TaskMoveData>();
   taskDelete = output<string>();
   taskArchive = output<string>();
 
@@ -32,7 +38,7 @@ export class TaskColumnComponent {
 
     const taskId = event.dataTransfer?.getData('text/plain');
     if (taskId) {
-      this.taskMove.emit({ taskId, newStatus: this.column().id });
+      this.taskMove.emit({ taskId, newStatus: this.status() });
     }
   }
 
