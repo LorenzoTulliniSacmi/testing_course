@@ -112,3 +112,4 @@ docker-compose.override.yml
 /backend/CLAUDE.md
 /CLAUDE.md
 /.claude
+*.pptx

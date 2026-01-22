@@ -4,9 +4,19 @@ using TaskBoard.Core.Models;
 using TaskBoard.Core.Models.Enums;
 using TaskBoard.Core.Ports;
 using TaskBoard.Core.Services;
+using Xunit;
 
 namespace TaskBoard.Tests.Unit.Core;
 
+/// <summary>
+/// Esercizi Modulo 1 e 2: Fondamenti xUnit e Unit Test Domain Layer
+///
+/// ISTRUZIONI:
+/// - Ogni test ha un TODO che indica cosa implementare
+/// - Il primo esercizio usa Assert classico (xUnit nativo), tutti gli altri FluentAssertions
+/// - Rimuovi "throw new NotImplementedException(...)" quando completi l'esercizio
+/// - Esegui: dotnet test --filter "FullyQualifiedName~TaskServiceTests"
+/// </summary>
 public class TaskServiceTests
 {
     private readonly Mock<ITaskRepository> _repositoryMock;
@@ -18,8 +28,117 @@ public class TaskServiceTests
         _sut = new TaskService(_repositoryMock.Object);
     }
 
-    #region CreateAsync Tests
+    #region Modulo 1: Fondamenti xUnit
 
+    /// <summary>
+    /// Modulo 1: Fondamenti xUnit
+    /// Esercizio 1: Test con Assert classico (xUnit nativo)
+    ///
+    /// Obiettivo: Verificare che ParsePriority("low") restituisca TaskPriority.Low
+    /// </summary>
+    [Fact]
+    public void ParsePriority_WithLowValue_ReturnsLow()
+    {
+        // Arrange
+        // TODO: Crea una variabile input con valore "low"
+        // HINT: var input = "low";
+
+        // Act
+        // TODO: Chiama TaskService.ParsePriority(input) e salva il risultato
+        // HINT: var result = TaskService.ParsePriority(input);
+
+        // Assert
+        // TODO: Usa Assert.Equal per verificare che il risultato sia TaskPriority.Low
+        // HINT: Assert.Equal(TaskPriority.Low, result);
+
+        throw new NotImplementedException("Esercizio 1: Implementa il test usando Assert.Equal()");
+    }
+
+    /// <summary>
+    /// Modulo 1: Fondamenti xUnit
+    /// Esercizio 2: Theory con InlineData e FluentAssertions
+    ///
+    /// Obiettivo: Testare ParsePriority con diversi input usando [Theory] e [InlineData]
+    /// </summary>
+    [Theory]
+    [InlineData("low", TaskPriority.Low)]
+    [InlineData("medium", TaskPriority.Medium)]
+    [InlineData("high", TaskPriority.High)]
+    [InlineData("LOW", TaskPriority.Low)]
+    [InlineData("MEDIUM", TaskPriority.Medium)]
+    [InlineData("invalid", TaskPriority.Medium)] // default per input non validi
+    public void ParsePriority_WithVariousInputs_ReturnsCorrectPriority(string input, TaskPriority expected)
+    {
+        // Act
+        // TODO: Chiama TaskService.ParsePriority(input) e salva il risultato
+        // HINT: var result = TaskService.ParsePriority(input);
+
+        // Assert
+        // TODO: Usa FluentAssertions per verificare che result sia uguale a expected
+        // HINT: result.Should().Be(expected);
+
+        throw new NotImplementedException("Esercizio 2: Implementa il test usando FluentAssertions");
+    }
+
+    /// <summary>
+    /// Modulo 1: Fondamenti xUnit
+    /// Esercizio 3: Theory per ParseStatus
+    ///
+    /// Obiettivo: Testare ParseStatus con vari input validi
+    /// </summary>
+    [Theory]
+    [InlineData("todo", KanbanStatus.Todo)]
+    [InlineData("in-progress", KanbanStatus.InProgress)]
+    [InlineData("done", KanbanStatus.Done)]
+    [InlineData("TODO", KanbanStatus.Todo)]
+    [InlineData("IN-PROGRESS", KanbanStatus.InProgress)]
+    public void ParseStatus_WithValidValues_ReturnsCorrectStatus(string input, KanbanStatus expected)
+    {
+        // Act
+        // TODO: Chiama TaskService.ParseStatus(input) e salva il risultato
+        // HINT: var result = TaskService.ParseStatus(input);
+
+        // Assert
+        // TODO: Usa FluentAssertions per verificare che result sia uguale a expected
+        // HINT: result.Should().Be(expected);
+
+        throw new NotImplementedException("Esercizio 3: Implementa il test per ParseStatus");
+    }
+
+    /// <summary>
+    /// Modulo 1: Fondamenti xUnit
+    /// Esercizio 4: Test del valore di default
+    ///
+    /// Obiettivo: Verificare che ParseStatus restituisca KanbanStatus.Todo per input non validi
+    /// </summary>
+    [Fact]
+    public void ParseStatus_WithInvalidValue_ReturnsDefault()
+    {
+        // Arrange
+        // TODO: Crea una variabile con un valore di status non valido
+        // HINT: var input = "invalid-status";
+
+        // Act
+        // TODO: Chiama TaskService.ParseStatus(input)
+        // HINT: var result = TaskService.ParseStatus(input);
+
+        // Assert
+        // TODO: Verifica che il risultato sia KanbanStatus.Todo (valore di default)
+        // HINT: result.Should().Be(KanbanStatus.Todo);
+
+        throw new NotImplementedException("Esercizio 4: Implementa il test per il valore di default");
+    }
+
+    #endregion
+
+    #region Modulo 2: Unit Test Domain Layer con Moq
+
+    /// <summary>
+    /// Modulo 2: Unit Test Domain Layer
+    /// Esercizio 5: CreateAsync verifica tutti i valori
+    ///
+    /// Obiettivo: Verificare che CreateAsync imposti correttamente tutti i campi del task
+    /// </summary>
     [Fact]
     public async Task CreateAsync_WithValidData_CreatesTaskWithCorrectValues()
     {
@@ -28,278 +147,71 @@ public class TaskServiceTests
         var description = "Test Description";
         var priority = "high";
 
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
-            .ReturnsAsync((TaskItem task) => task);
+        // TODO: Configura il mock del repository per restituire il task passato
+        // HINT: _repositoryMock
+        //     .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
+        //     .ReturnsAsync((TaskItem task) => task);
 
         // Act
-        var result = await _sut.CreateAsync(title, description, priority);
+        // TODO: Chiama _sut.CreateAsync(title, description, priority)
+        // HINT: var result = await _sut.CreateAsync(title, description, priority);
 
         // Assert
-        result.Title.Should().Be(title);
-        result.Description.Should().Be(description);
-        result.Priority.Should().Be(TaskPriority.High);
-        result.Status.Should().Be(KanbanStatus.Todo);
-        result.Archived.Should().BeFalse();
-        result.Id.Should().NotBeNullOrEmpty();
+        // TODO: Verifica che:
+        // - result.Title sia uguale a title
+        // - result.Description sia uguale a description
+        // - result.Priority sia TaskPriority.High
+        // - result.Status sia KanbanStatus.Todo
+        // - result.Archived sia false
+        // HINT: result.Title.Should().Be(title);
+        //       result.Priority.Should().Be(TaskPriority.High);
+        //       result.Status.Should().Be(KanbanStatus.Todo);
+        //       result.Archived.Should().BeFalse();
+
+        throw new NotImplementedException("Esercizio 5: Verifica tutti i valori creati da CreateAsync");
     }
 
+    /// <summary>
+    /// Modulo 2: Unit Test Domain Layer
+    /// Esercizio 6: CreateAsync imposta i timestamp
+    ///
+    /// Obiettivo: Verificare che CreatedAt e UpdatedAt siano impostati correttamente
+    /// </summary>
     [Fact]
-    public async Task CreateAsync_WithNullPriority_DefaultsToMedium()
+    public async Task CreateAsync_SetsTimestamps()
     {
         // Arrange
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
-            .ReturnsAsync((TaskItem task) => task);
+        // TODO: Salva il timestamp corrente PRIMA di chiamare CreateAsync
+        // HINT: var before = DateTime.UtcNow;
+
+        // TODO: Configura il mock del repository
+        // HINT: _repositoryMock
+        //     .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
+        //     .ReturnsAsync((TaskItem task) => task);
 
         // Act
-        var result = await _sut.CreateAsync("Task", "Desc", null);
+        // TODO: Chiama CreateAsync
+        // HINT: var result = await _sut.CreateAsync("Task", "Desc", null);
+
+        // TODO: Salva il timestamp corrente DOPO la chiamata
+        // HINT: var after = DateTime.UtcNow;
 
         // Assert
-        result.Priority.Should().Be(TaskPriority.Medium);
+        // TODO: Verifica che CreatedAt e UpdatedAt siano tra before e after
+        // HINT: result.CreatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
+        //       result.UpdatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
+
+        throw new NotImplementedException("Esercizio 6: Verifica i timestamp");
     }
 
-    [Theory]
-    [InlineData("low", TaskPriority.Low)]
-    [InlineData("medium", TaskPriority.Medium)]
-    [InlineData("high", TaskPriority.High)]
-    [InlineData("LOW", TaskPriority.Low)]
-    [InlineData("HIGH", TaskPriority.High)]
-    [InlineData("invalid", TaskPriority.Medium)]
-    public async Task CreateAsync_ParsesPriorityCorrectly(string input, TaskPriority expected)
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
-            .ReturnsAsync((TaskItem task) => task);
-
-        // Act
-        var result = await _sut.CreateAsync("Task", "Desc", input);
-
-        // Assert
-        result.Priority.Should().Be(expected);
-    }
-
+    /// <summary>
+    /// Modulo 2: Unit Test Domain Layer
+    /// Esercizio 7: PatchAsync aggiorna solo i campi specificati
+    ///
+    /// Obiettivo: Verificare che PatchAsync modifichi solo il title lasciando gli altri campi invariati
+    /// </summary>
     [Fact]
-    public async Task CreateAsync_SetsCreatedAtAndUpdatedAt()
-    {
-        // Arrange
-        var before = DateTime.UtcNow;
-
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
-            .ReturnsAsync((TaskItem task) => task);
-
-        // Act
-        var result = await _sut.CreateAsync("Task", "Desc", null);
-        var after = DateTime.UtcNow;
-
-        // Assert
-        result.CreatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
-        result.UpdatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
-    }
-
-    [Fact]
-    public async Task CreateAsync_CallsRepositoryOnce()
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
-            .ReturnsAsync((TaskItem task) => task);
-
-        // Act
-        await _sut.CreateAsync("Task", "Desc", null);
-
-        // Assert
-        _repositoryMock.Verify(r => r.CreateAsync(It.IsAny<TaskItem>()), Times.Once);
-    }
-
-    #endregion
-
-    #region GetAllAsync Tests
-
-    [Fact]
-    public async Task GetAllAsync_ReturnsTasksFromRepository()
-    {
-        // Arrange
-        var tasks = new List<TaskItem>
-        {
-            new() { Id = "1", Title = "Task 1" },
-            new() { Id = "2", Title = "Task 2" }
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetAllAsync(It.IsAny<TaskQueryParams>()))
-            .ReturnsAsync(tasks);
-
-        // Act
-        var result = await _sut.GetAllAsync(new TaskQueryParams());
-
-        // Assert
-        result.Should().HaveCount(2);
-        result.Should().Contain(t => t.Title == "Task 1");
-        result.Should().Contain(t => t.Title == "Task 2");
-    }
-
-    [Fact]
-    public async Task GetAllAsync_PassesQueryParamsToRepository()
-    {
-        // Arrange
-        var query = new TaskQueryParams(
-            Status: KanbanStatus.Todo,
-            Priority: TaskPriority.High,
-            Archived: "false"
-        );
-
-        _repositoryMock
-            .Setup(r => r.GetAllAsync(query))
-            .ReturnsAsync(new List<TaskItem>());
-
-        // Act
-        await _sut.GetAllAsync(query);
-
-        // Assert
-        _repositoryMock.Verify(r => r.GetAllAsync(query), Times.Once);
-    }
-
-    #endregion
-
-    #region GetByIdAsync Tests
-
-    [Fact]
-    public async Task GetByIdAsync_WhenTaskExists_ReturnsTask()
-    {
-        // Arrange
-        var task = new TaskItem { Id = "123", Title = "Test Task" };
-
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(task);
-
-        // Act
-        var result = await _sut.GetByIdAsync("123");
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Id.Should().Be("123");
-        result.Title.Should().Be("Test Task");
-    }
-
-    [Fact]
-    public async Task GetByIdAsync_WhenTaskNotExists_ReturnsNull()
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("nonexistent"))
-            .ReturnsAsync((TaskItem?)null);
-
-        // Act
-        var result = await _sut.GetByIdAsync("nonexistent");
-
-        // Assert
-        result.Should().BeNull();
-    }
-
-    #endregion
-
-    #region UpdateAsync Tests
-
-    [Fact]
-    public async Task UpdateAsync_WhenTaskExists_UpdatesAllFields()
-    {
-        // Arrange
-        var existingTask = new TaskItem
-        {
-            Id = "123",
-            Title = "Old Title",
-            Description = "Old Desc",
-            Status = KanbanStatus.Todo,
-            Priority = TaskPriority.Low,
-            Archived = false,
-            CreatedAt = DateTime.UtcNow.AddDays(-1),
-            UpdatedAt = DateTime.UtcNow.AddDays(-1)
-        };
-
-        var updates = new TaskItem
-        {
-            Title = "New Title",
-            Description = "New Desc",
-            Status = KanbanStatus.Done,
-            Priority = TaskPriority.High,
-            Archived = true
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(existingTask);
-
-        _repositoryMock
-            .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
-
-        // Act
-        var result = await _sut.UpdateAsync("123", updates);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Title.Should().Be("New Title");
-        result.Description.Should().Be("New Desc");
-        result.Status.Should().Be(KanbanStatus.Done);
-        result.Priority.Should().Be(TaskPriority.High);
-        result.Archived.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task UpdateAsync_WhenTaskNotExists_ReturnsNull()
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("nonexistent"))
-            .ReturnsAsync((TaskItem?)null);
-
-        // Act
-        var result = await _sut.UpdateAsync("nonexistent", new TaskItem());
-
-        // Assert
-        result.Should().BeNull();
-        _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<TaskItem>()), Times.Never);
-    }
-
-    [Fact]
-    public async Task UpdateAsync_UpdatesUpdatedAtTimestamp()
-    {
-        // Arrange
-        var oldTimestamp = DateTime.UtcNow.AddDays(-1);
-        var existingTask = new TaskItem
-        {
-            Id = "123",
-            UpdatedAt = oldTimestamp
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(existingTask);
-
-        _repositoryMock
-            .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
-
-        var before = DateTime.UtcNow;
-
-        // Act
-        var result = await _sut.UpdateAsync("123", new TaskItem());
-        var after = DateTime.UtcNow;
-
-        // Assert
-        result!.UpdatedAt.Should().BeOnOrAfter(before).And.BeOnOrBefore(after);
-    }
-
-    #endregion
-
-    #region PatchAsync Tests
-
-    [Fact]
-    public async Task PatchAsync_WhenTaskExists_UpdatesOnlySpecifiedFields()
+    public async Task PatchAsync_UpdatesOnlySpecifiedFields()
     {
         // Arrange
         var existingTask = new TaskItem
@@ -317,129 +229,46 @@ public class TaskServiceTests
             ["title"] = "Updated Title"
         };
 
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(existingTask);
+        // TODO: Configura GetByIdAsync per restituire existingTask
+        // HINT: _repositoryMock
+        //     .Setup(r => r.GetByIdAsync("123"))
+        //     .ReturnsAsync(existingTask);
 
-        _repositoryMock
-            .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
-
-        // Act
-        var result = await _sut.PatchAsync("123", updates);
-
-        // Assert
-        result.Should().NotBeNull();
-        result!.Title.Should().Be("Updated Title");
-        result.Description.Should().Be("Original Desc");
-        result.Status.Should().Be(KanbanStatus.Todo);
-        result.Priority.Should().Be(TaskPriority.Medium);
-    }
-
-    [Fact]
-    public async Task PatchAsync_WhenTaskNotExists_ReturnsNull()
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("nonexistent"))
-            .ReturnsAsync((TaskItem?)null);
+        // TODO: Configura UpdateAsync per restituire il task aggiornato
+        // HINT: _repositoryMock
+        //     .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
+        //     .ReturnsAsync((string id, TaskItem task) => task);
 
         // Act
-        var result = await _sut.PatchAsync("nonexistent", new Dictionary<string, object?>());
+        // TODO: Chiama PatchAsync
+        // HINT: var result = await _sut.PatchAsync("123", updates);
 
         // Assert
-        result.Should().BeNull();
+        // TODO: Verifica che:
+        // - Title sia "Updated Title"
+        // - Description sia rimasto "Original Desc"
+        // - Status sia rimasto KanbanStatus.Todo
+        // - Priority sia rimasto TaskPriority.Medium
+        // HINT: result!.Title.Should().Be("Updated Title");
+        //       result.Description.Should().Be("Original Desc");
+
+        throw new NotImplementedException("Esercizio 7: Verifica che PatchAsync aggiorni solo i campi specificati");
     }
 
+    /// <summary>
+    /// Modulo 2: Unit Test Domain Layer
+    /// Esercizio 8: PatchAsync aggiorna più campi
+    ///
+    /// Obiettivo: Verificare che PatchAsync aggiorni correttamente title, description e priority insieme
+    /// </summary>
     [Fact]
-    public async Task PatchAsync_UpdatesStatus()
+    public async Task PatchAsync_WithMultipleFields_UpdatesAll()
     {
         // Arrange
         var existingTask = new TaskItem
         {
             Id = "123",
-            Status = KanbanStatus.Todo
-        };
-
-        var updates = new Dictionary<string, object?>
-        {
-            ["status"] = "done"
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(existingTask);
-
-        _repositoryMock
-            .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
-
-        // Act
-        var result = await _sut.PatchAsync("123", updates);
-
-        // Assert
-        result!.Status.Should().Be(KanbanStatus.Done);
-    }
-
-    [Theory]
-    [InlineData("todo", KanbanStatus.Todo)]
-    [InlineData("in-progress", KanbanStatus.InProgress)]
-    [InlineData("done", KanbanStatus.Done)]
-    public async Task PatchAsync_ParsesStatusCorrectly(string input, KanbanStatus expected)
-    {
-        // Arrange
-        var existingTask = new TaskItem { Id = "123" };
-        var updates = new Dictionary<string, object?> { ["status"] = input };
-
-        _repositoryMock.Setup(r => r.GetByIdAsync("123")).ReturnsAsync(existingTask);
-        _repositoryMock.Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
-
-        // Act
-        var result = await _sut.PatchAsync("123", updates);
-
-        // Assert
-        result!.Status.Should().Be(expected);
-    }
-
-    [Fact]
-    public async Task PatchAsync_UpdatesArchived()
-    {
-        // Arrange
-        var existingTask = new TaskItem
-        {
-            Id = "123",
-            Archived = false
-        };
-
-        var updates = new Dictionary<string, object?>
-        {
-            ["archived"] = true
-        };
-
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(existingTask);
-
-        _repositoryMock
-            .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
-
-        // Act
-        var result = await _sut.PatchAsync("123", updates);
-
-        // Assert
-        result!.Archived.Should().BeTrue();
-    }
-
-    [Fact]
-    public async Task PatchAsync_UpdatesMultipleFields()
-    {
-        // Arrange
-        var existingTask = new TaskItem
-        {
-            Id = "123",
-            Title = "Old",
+            Title = "Old Title",
             Description = "Old Desc",
             Priority = TaskPriority.Low
         };
@@ -451,70 +280,77 @@ public class TaskServiceTests
             ["priority"] = "high"
         };
 
-        _repositoryMock
-            .Setup(r => r.GetByIdAsync("123"))
-            .ReturnsAsync(existingTask);
-
-        _repositoryMock
-            .Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync((string id, TaskItem task) => task);
+        // TODO: Configura i mock (GetByIdAsync e UpdateAsync)
+        // HINT: _repositoryMock.Setup(r => r.GetByIdAsync("123")).ReturnsAsync(existingTask);
+        //       _repositoryMock.Setup(r => r.UpdateAsync("123", It.IsAny<TaskItem>()))
+        //           .ReturnsAsync((string id, TaskItem task) => task);
 
         // Act
-        var result = await _sut.PatchAsync("123", updates);
+        // TODO: Chiama PatchAsync con updates
+        // HINT: var result = await _sut.PatchAsync("123", updates);
 
         // Assert
-        result!.Title.Should().Be("New Title");
-        result.Description.Should().Be("New Desc");
-        result.Priority.Should().Be(TaskPriority.High);
+        // TODO: Verifica tutti e tre i campi aggiornati
+        // HINT: result!.Title.Should().Be("New Title");
+        //       result.Description.Should().Be("New Desc");
+        //       result.Priority.Should().Be(TaskPriority.High);
+
+        throw new NotImplementedException("Esercizio 8: Verifica PatchAsync con più campi");
     }
 
-    #endregion
-
-    #region DeleteAsync Tests
-
+    /// <summary>
+    /// Modulo 2: Unit Test Domain Layer
+    /// Esercizio 9: UpdateAsync quando il task non esiste
+    ///
+    /// Obiettivo: Verificare che UpdateAsync restituisca null e NON chiami il repository.UpdateAsync
+    /// </summary>
     [Fact]
-    public async Task DeleteAsync_WhenTaskExists_ReturnsTrue()
+    public async Task UpdateAsync_WhenTaskNotExists_ReturnsNull()
     {
         // Arrange
-        _repositoryMock
-            .Setup(r => r.DeleteAsync("123"))
-            .ReturnsAsync(true);
+        // TODO: Configura GetByIdAsync per restituire null (task non trovato)
+        // HINT: _repositoryMock
+        //     .Setup(r => r.GetByIdAsync("nonexistent"))
+        //     .ReturnsAsync((TaskItem?)null);
 
         // Act
-        var result = await _sut.DeleteAsync("123");
+        // TODO: Chiama UpdateAsync con un id che non esiste
+        // HINT: var result = await _sut.UpdateAsync("nonexistent", new TaskItem());
 
         // Assert
-        result.Should().BeTrue();
+        // TODO: Verifica che:
+        // - Il risultato sia null
+        // - UpdateAsync del repository NON sia stato chiamato (Times.Never)
+        // HINT: result.Should().BeNull();
+        //       _repositoryMock.Verify(r => r.UpdateAsync(It.IsAny<string>(), It.IsAny<TaskItem>()), Times.Never);
+
+        throw new NotImplementedException("Esercizio 9: Verifica comportamento quando task non esiste");
     }
 
-    [Fact]
-    public async Task DeleteAsync_WhenTaskNotExists_ReturnsFalse()
-    {
-        // Arrange
-        _repositoryMock
-            .Setup(r => r.DeleteAsync("nonexistent"))
-            .ReturnsAsync(false);
-
-        // Act
-        var result = await _sut.DeleteAsync("nonexistent");
-
-        // Assert
-        result.Should().BeFalse();
-    }
-
+    /// <summary>
+    /// Modulo 2: Unit Test Domain Layer
+    /// Esercizio 10: DeleteAsync verifica chiamata al repository
+    ///
+    /// Obiettivo: Verificare che DeleteAsync chiami il repository con l'ID corretto
+    /// </summary>
     [Fact]
     public async Task DeleteAsync_CallsRepositoryWithCorrectId()
     {
         // Arrange
-        _repositoryMock
-            .Setup(r => r.DeleteAsync(It.IsAny<string>()))
-            .ReturnsAsync(true);
+        // TODO: Configura DeleteAsync del repository per restituire true
+        // HINT: _repositoryMock
+        //     .Setup(r => r.DeleteAsync(It.IsAny<string>()))
+        //     .ReturnsAsync(true);
 
         // Act
-        await _sut.DeleteAsync("specific-id");
+        // TODO: Chiama DeleteAsync con un ID specifico
+        // HINT: await _sut.DeleteAsync("specific-id");
 
         // Assert
-        _repositoryMock.Verify(r => r.DeleteAsync("specific-id"), Times.Once);
+        // TODO: Verifica che il repository sia stato chiamato con l'ID corretto, esattamente una volta
+        // HINT: _repositoryMock.Verify(r => r.DeleteAsync("specific-id"), Times.Once);
+
+        throw new NotImplementedException("Esercizio 10: Verifica chiamata DeleteAsync al repository");
     }
 
     #endregion

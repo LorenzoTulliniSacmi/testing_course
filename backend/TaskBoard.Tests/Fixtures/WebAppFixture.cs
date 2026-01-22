@@ -6,6 +6,7 @@ using Moq;
 using TaskBoard.Core.Models;
 using TaskBoard.Core.Models.Enums;
 using TaskBoard.Core.Ports;
+using Xunit;
 
 namespace TaskBoard.Tests.Fixtures;
 

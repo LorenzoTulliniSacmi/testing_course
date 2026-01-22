@@ -2,13 +2,24 @@ using System.Net;
 using System.Net.Http.Json;
 using System.Text.Json;
 using FluentAssertions;
+using Moq;
 using TaskBoard.Core.Models;
 using TaskBoard.Core.Models.Enums;
 using TaskBoard.Tests.Fixtures;
 using TaskBoard.WebApi.DTOs;
+using Xunit;
 
 namespace TaskBoard.Tests.Integration.Api;
 
+/// <summary>
+/// Esercizi Modulo 4: Integration Test HTTP
+///
+/// ISTRUZIONI:
+/// - Questi test verificano l'API HTTP end-to-end usando WebApplicationFactory
+/// - Focus su status code HTTP, JSON serialization e header
+/// - La fixture WebAppFixture usa un repository mockato
+/// - Esegui: dotnet test --filter "FullyQualifiedName~TasksEndpointTests"
+/// </summary>
 public class TasksEndpointTests : IClassFixture<WebAppFixture>
 {
     private readonly WebAppFixture _factory;
@@ -26,10 +37,14 @@ public class TasksEndpointTests : IClassFixture<WebAppFixture>
         };
     }
 
-    #region GET /api/tasks Tests
-
+    /// <summary>
+    /// Modulo 4: Integration Test HTTP
+    /// Esercizio 1: GET /api/tasks restituisce 200 OK con JSON array
+    ///
+    /// Obiettivo: Verificare che l'endpoint restituisca correttamente una lista di task
+    /// </summary>
     [Fact]
-    public async Task GetAll_ReturnsOkWithTasks()
+    public async Task GetAll_ReturnsOkWithJsonArray()
     {
         // Arrange
         var tasks = new[]
@@ -38,103 +53,68 @@ public class TasksEndpointTests : IClassFixture<WebAppFixture>
             CreateTaskItem("2", "Task 2", KanbanStatus.Done, TaskPriority.High)
         };
 
-        _factory.SetupGetAll(tasks);
+        // TODO: Configura il mock per restituire i task
+        // HINT: _factory.SetupGetAll(tasks);
 
         // Act
-        var response = await _client.GetAsync("/api/tasks");
+        // TODO: Esegui una GET request a /api/tasks
+        // HINT: var response = await _client.GetAsync("/api/tasks");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        // TODO: Verifica che:
+        // - StatusCode sia 200 OK
+        // - ContentType sia application/json
+        // - Il body contenga 2 elementi
+        // HINT: response.StatusCode.Should().Be(HttpStatusCode.OK);
+        //       response.Content.Headers.ContentType!.MediaType.Should().Be("application/json");
+        //       var content = await response.Content.ReadFromJsonAsync<List<TaskDto>>(_jsonOptions);
+        //       content.Should().HaveCount(2);
 
-        var content = await response.Content.ReadFromJsonAsync<List<TaskDto>>(_jsonOptions);
-        content.Should().HaveCount(2);
-        content![0].Title.Should().Be("Task 1");
-        content[1].Title.Should().Be("Task 2");
+        throw new NotImplementedException("Esercizio 1: Implementa il test GetAll");
     }
 
+    /// <summary>
+    /// Modulo 4: Integration Test HTTP
+    /// Esercizio 2: GET /api/tasks restituisce proprietà in camelCase
+    ///
+    /// Obiettivo: Verificare che la serializzazione JSON usi camelCase (non PascalCase)
+    /// </summary>
     [Fact]
-    public async Task GetAll_ReturnsEmptyArray_WhenNoTasks()
-    {
-        // Arrange
-        _factory.SetupGetAll();
-
-        // Act
-        var response = await _client.GetAsync("/api/tasks");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var content = await response.Content.ReadFromJsonAsync<List<TaskDto>>(_jsonOptions);
-        content.Should().BeEmpty();
-    }
-
-    [Fact]
-    public async Task GetAll_ReturnsCamelCaseJson()
+    public async Task GetAll_ReturnsCamelCaseProperties()
     {
         // Arrange
         var task = CreateTaskItem("1", "Task 1", KanbanStatus.InProgress, TaskPriority.High);
-        _factory.SetupGetAll(task);
+
+        // TODO: Configura il mock
+        // HINT: _factory.SetupGetAll(task);
 
         // Act
-        var response = await _client.GetAsync("/api/tasks");
-        var jsonString = await response.Content.ReadAsStringAsync();
+        // TODO: Esegui la GET e leggi il JSON come stringa raw
+        // HINT: var response = await _client.GetAsync("/api/tasks");
+        //       var jsonString = await response.Content.ReadAsStringAsync();
 
         // Assert
-        jsonString.Should().Contain("\"createdAt\"");
-        jsonString.Should().Contain("\"updatedAt\"");
-        jsonString.Should().NotContain("\"CreatedAt\"");
-        jsonString.Should().NotContain("\"UpdatedAt\"");
+        // TODO: Verifica che il JSON contenga "createdAt" (camelCase) e NON "CreatedAt" (PascalCase)
+        // HINT: jsonString.Should().Contain("\"createdAt\"");
+        //       jsonString.Should().Contain("\"updatedAt\"");
+        //       jsonString.Should().NotContain("\"CreatedAt\"");
+        //       jsonString.Should().NotContain("\"UpdatedAt\"");
+
+        throw new NotImplementedException("Esercizio 2: Implementa il test camelCase");
     }
 
-    #endregion
-
-    #region GET /api/tasks/{id} Tests
-
+    /// <summary>
+    /// Modulo 4: Integration Test HTTP
+    /// Esercizio 3: POST /api/tasks restituisce Created con Location header
+    ///
+    /// Obiettivo: Verificare che la creazione restituisca 201 e includa il Location header
+    /// </summary>
     [Fact]
-    public async Task GetById_WhenTaskExists_ReturnsOk()
+    public async Task Create_ReturnsCreatedWithLocationHeader()
     {
         // Arrange
-        var task = CreateTaskItem("abc123", "Test Task", KanbanStatus.Todo, TaskPriority.Medium);
-        _factory.SetupGetById("abc123", task);
-
-        // Act
-        var response = await _client.GetAsync("/api/tasks/abc123");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var content = await response.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
-        content!.Id.Should().Be("abc123");
-        content.Title.Should().Be("Test Task");
-        content.Status.Should().Be("todo");
-        content.Priority.Should().Be("medium");
-    }
-
-    [Fact]
-    public async Task GetById_WhenTaskNotExists_ReturnsNotFound()
-    {
-        // Arrange
-        _factory.SetupGetById("nonexistent", null);
-
-        // Act
-        var response = await _client.GetAsync("/api/tasks/nonexistent");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-
-        var content = await response.Content.ReadFromJsonAsync<ErrorDto>(_jsonOptions);
-        content!.Error.Should().Be("Task not found");
-    }
-
-    #endregion
-
-    #region POST /api/tasks Tests
-
-    [Fact]
-    public async Task Create_WithValidData_ReturnsCreated()
-    {
-        // Arrange
-        _factory.SetupCreate();
+        // TODO: Configura il mock per la creazione
+        // HINT: _factory.SetupCreate();
 
         var createDto = new CreateTaskDto
         {
@@ -144,240 +124,127 @@ public class TasksEndpointTests : IClassFixture<WebAppFixture>
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/tasks", createDto, _jsonOptions);
+        // TODO: Esegui una POST request con il body JSON
+        // HINT: var response = await _client.PostAsJsonAsync("/api/tasks", createDto, _jsonOptions);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        // TODO: Verifica che:
+        // - StatusCode sia 201 Created
+        // - Location header sia presente e contenga /api/tasks/
+        // HINT: response.StatusCode.Should().Be(HttpStatusCode.Created);
+        //       response.Headers.Location.Should().NotBeNull();
+        //       response.Headers.Location!.ToString().Should().Contain("/api/tasks/");
 
-        var content = await response.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
-        content!.Title.Should().Be("New Task");
-        content.Description.Should().Be("New Description");
-        content.Priority.Should().Be("high");
-        content.Status.Should().Be("todo");
-
-        response.Headers.Location.Should().NotBeNull();
+        throw new NotImplementedException("Esercizio 3: Implementa il test Create con Location header");
     }
 
+    /// <summary>
+    /// Modulo 4: Integration Test HTTP
+    /// Esercizio 4: Create e GetById round-trip
+    ///
+    /// Obiettivo: Verificare che un task creato possa essere recuperato via GetById
+    /// </summary>
     [Fact]
-    public async Task Create_WithEmptyTitle_ReturnsBadRequest()
+    public async Task CreateAndGetById_RoundTrip()
     {
         // Arrange
+        var taskId = Guid.NewGuid().ToString();
+        var createdTask = new TaskItem
+        {
+            Id = taskId,
+            Title = "Round Trip Task",
+            Description = "Testing round trip",
+            Status = KanbanStatus.Todo,
+            Priority = TaskPriority.High,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow
+        };
+
+        // TODO: Configura i mock per Create e GetById
+        // HINT: _factory.RepositoryMock
+        //     .Setup(r => r.CreateAsync(It.IsAny<TaskItem>()))
+        //     .ReturnsAsync(createdTask);
+        // _factory.SetupGetById(taskId, createdTask);
+
         var createDto = new CreateTaskDto
         {
-            Title = "",
-            Description = "Description"
+            Title = "Round Trip Task",
+            Description = "Testing round trip",
+            Priority = "high"
         };
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/tasks", createDto, _jsonOptions);
+        // TODO: 1. Crea il task via POST
+        // HINT: var createResponse = await _client.PostAsJsonAsync("/api/tasks", createDto, _jsonOptions);
+        //       var created = await createResponse.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
+
+        // TODO: 2. Recupera il task via GET
+        // HINT: var getResponse = await _client.GetAsync($"/api/tasks/{taskId}");
+        //       var retrieved = await getResponse.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+        // TODO: Verifica che:
+        // - Entrambe le response siano success (201 e 200)
+        // - I dati del task recuperato corrispondano a quelli creati
+        // HINT: createResponse.StatusCode.Should().Be(HttpStatusCode.Created);
+        //       getResponse.StatusCode.Should().Be(HttpStatusCode.OK);
+        //       retrieved!.Id.Should().Be(created!.Id);
+        //       retrieved.Title.Should().Be(created.Title);
 
-        var content = await response.Content.ReadFromJsonAsync<ErrorDto>(_jsonOptions);
-        content!.Error.Should().Be("Title is required");
+        throw new NotImplementedException("Esercizio 4: Implementa il test round-trip");
     }
 
+    /// <summary>
+    /// Modulo 4: Integration Test HTTP
+    /// Esercizio 5: DELETE /api/tasks/{id} restituisce NoContent
+    ///
+    /// Obiettivo: Verificare che la cancellazione restituisca 204 NoContent
+    /// </summary>
     [Fact]
-    public async Task Create_WithDefaultPriority_SetsMedium()
+    public async Task Delete_ReturnsNoContent()
     {
         // Arrange
-        _factory.SetupCreate();
-
-        var createDto = new CreateTaskDto
-        {
-            Title = "Task without priority",
-            Description = ""
-        };
+        // TODO: Configura il mock per il delete
+        // HINT: _factory.SetupDelete("123", true);
 
         // Act
-        var response = await _client.PostAsJsonAsync("/api/tasks", createDto, _jsonOptions);
+        // TODO: Esegui una DELETE request
+        // HINT: var response = await _client.DeleteAsync("/api/tasks/123");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.Created);
+        // TODO: Verifica che StatusCode sia 204 NoContent
+        // HINT: response.StatusCode.Should().Be(HttpStatusCode.NoContent);
 
-        var content = await response.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
-        content!.Priority.Should().Be("medium");
+        throw new NotImplementedException("Esercizio 5: Implementa il test Delete");
     }
 
-    #endregion
-
-    #region PUT /api/tasks/{id} Tests
-
+    /// <summary>
+    /// Modulo 4: Integration Test HTTP
+    /// Esercizio 6: GET /api/tasks/{id} con ID invalido restituisce NotFound
+    ///
+    /// Obiettivo: Verificare che l'endpoint restituisca 404 con ErrorDto
+    /// </summary>
     [Fact]
-    public async Task Update_WithValidData_ReturnsOk()
+    public async Task GetById_WithInvalidId_ReturnsNotFound()
     {
         // Arrange
-        var existingTask = CreateTaskItem("123", "Old Title", KanbanStatus.Todo, TaskPriority.Low);
-        _factory.SetupUpdate("123", existingTask);
-
-        var updateDto = new UpdateTaskDto
-        {
-            Title = "Updated Title",
-            Description = "Updated Desc",
-            Status = "done",
-            Priority = "high",
-            Archived = false
-        };
+        // TODO: Configura il mock per restituire null (task non trovato)
+        // HINT: _factory.SetupGetById("invalid-id", null);
 
         // Act
-        var response = await _client.PutAsJsonAsync("/api/tasks/123", updateDto, _jsonOptions);
+        // TODO: Esegui una GET request con un ID che non esiste
+        // HINT: var response = await _client.GetAsync("/api/tasks/invalid-id");
 
         // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
+        // TODO: Verifica che:
+        // - StatusCode sia 404 NotFound
+        // - Il body contenga un ErrorDto con messaggio appropriato
+        // HINT: response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+        //       var content = await response.Content.ReadFromJsonAsync<ErrorDto>(_jsonOptions);
+        //       content!.Error.Should().Be("Task not found");
 
-        var content = await response.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
-        content!.Title.Should().Be("Updated Title");
-        content.Status.Should().Be("done");
-        content.Priority.Should().Be("high");
+        throw new NotImplementedException("Esercizio 6: Implementa il test NotFound");
     }
-
-    [Fact]
-    public async Task Update_WhenTaskNotExists_ReturnsNotFound()
-    {
-        // Arrange
-        _factory.SetupUpdate("nonexistent", null);
-
-        var updateDto = new UpdateTaskDto
-        {
-            Title = "Title",
-            Description = "Desc",
-            Status = "todo",
-            Priority = "medium"
-        };
-
-        // Act
-        var response = await _client.PutAsJsonAsync("/api/tasks/nonexistent", updateDto, _jsonOptions);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task Update_WithMissingFields_ReturnsBadRequest()
-    {
-        // Arrange
-        var updateDto = new UpdateTaskDto
-        {
-            Title = "Title",
-            Description = "",
-            Status = "todo",
-            Priority = "medium"
-        };
-
-        // Act
-        var response = await _client.PutAsJsonAsync("/api/tasks/123", updateDto, _jsonOptions);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
-    }
-
-    #endregion
-
-    #region PATCH /api/tasks/{id} Tests
-
-    [Fact]
-    public async Task Patch_WithValidData_ReturnsOk()
-    {
-        // Arrange
-        var existingTask = CreateTaskItem("123", "Original Title", KanbanStatus.Todo, TaskPriority.Medium);
-        _factory.SetupUpdate("123", existingTask);
-
-        var patchDto = new PatchTaskDto
-        {
-            Title = "Patched Title"
-        };
-
-        // Act
-        var response = await _client.PatchAsJsonAsync("/api/tasks/123", patchDto, _jsonOptions);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var content = await response.Content.ReadFromJsonAsync<TaskDto>(_jsonOptions);
-        content!.Title.Should().Be("Patched Title");
-    }
-
-    [Fact]
-    public async Task Patch_WhenTaskNotExists_ReturnsNotFound()
-    {
-        // Arrange
-        _factory.SetupUpdate("nonexistent", null);
-
-        var patchDto = new PatchTaskDto { Title = "New Title" };
-
-        // Act
-        var response = await _client.PatchAsJsonAsync("/api/tasks/nonexistent", patchDto, _jsonOptions);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    [Fact]
-    public async Task Patch_WithArchivedFlag_ReturnsOk()
-    {
-        // Arrange
-        var existingTask = CreateTaskItem("123", "Title", KanbanStatus.Done, TaskPriority.Low);
-        _factory.SetupUpdate("123", existingTask);
-
-        var patchDto = new PatchTaskDto { Archived = true };
-
-        // Act
-        var response = await _client.PatchAsJsonAsync("/api/tasks/123", patchDto, _jsonOptions);
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-    }
-
-    #endregion
-
-    #region DELETE /api/tasks/{id} Tests
-
-    [Fact]
-    public async Task Delete_WhenTaskExists_ReturnsNoContent()
-    {
-        // Arrange
-        _factory.SetupDelete("123", true);
-
-        // Act
-        var response = await _client.DeleteAsync("/api/tasks/123");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NoContent);
-    }
-
-    [Fact]
-    public async Task Delete_WhenTaskNotExists_ReturnsNotFound()
-    {
-        // Arrange
-        _factory.SetupDelete("nonexistent", false);
-
-        // Act
-        var response = await _client.DeleteAsync("/api/tasks/nonexistent");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
-    }
-
-    #endregion
-
-    #region Health Endpoint Tests
-
-    [Fact]
-    public async Task Health_ReturnsOk()
-    {
-        // Act
-        var response = await _client.GetAsync("/health");
-
-        // Assert
-        response.StatusCode.Should().Be(HttpStatusCode.OK);
-
-        var content = await response.Content.ReadAsStringAsync();
-        content.Should().Contain("ok");
-        content.Should().Contain("timestamp");
-    }
-
-    #endregion
 
     #region Helper Methods
 

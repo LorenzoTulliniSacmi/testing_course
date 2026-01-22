@@ -3,14 +3,23 @@ using Microsoft.AspNetCore.Mvc;
 using Moq;
 using TaskBoard.Core.Models;
 using TaskBoard.Core.Models.Enums;
-using TaskBoard.Core.Ports;
 using TaskBoard.Core.Services;
 using TaskBoard.WebApi.Controllers;
 using TaskBoard.WebApi.DTOs;
 using TaskBoard.WebApi.Mapping;
+using Xunit;
 
 namespace TaskBoard.Tests.Unit.WebApi;
 
+/// <summary>
+/// Esercizi Modulo 3: Unit Test Controller
+///
+/// ISTRUZIONI:
+/// - Questi test verificano il comportamento del TasksController
+/// - Focus su ActionResult, status code e DTO di risposta
+/// - Usa FluentAssertions per tutte le asserzioni
+/// - Esegui: dotnet test --filter "FullyQualifiedName~TasksControllerTests"
+/// </summary>
 public class TasksControllerTests
 {
     private readonly Mock<ITaskService> _serviceMock;
@@ -25,88 +34,44 @@ public class TasksControllerTests
         MappingConfig.Configure();
     }
 
-    #region GetAll Tests
-
+    /// <summary>
+    /// Modulo 3: Unit Test Controller
+    /// Esercizio 1: GetById restituisce NotFound quando il task non esiste
+    ///
+    /// Obiettivo: Verificare che GetById restituisca 404 NotFound con ErrorDto
+    /// </summary>
     [Fact]
-    public async Task GetAll_ReturnsOkWithTasks()
+    public async Task GetById_WhenTaskNotExists_ReturnsNotFound()
     {
         // Arrange
-        var tasks = new List<TaskItem>
-        {
-            new()
-            {
-                Id = "1",
-                Title = "Task 1",
-                Description = "Desc 1",
-                Status = KanbanStatus.Todo,
-                Priority = TaskPriority.Medium,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            },
-            new()
-            {
-                Id = "2",
-                Title = "Task 2",
-                Description = "Desc 2",
-                Status = KanbanStatus.Done,
-                Priority = TaskPriority.High,
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            }
-        };
-
-        _serviceMock
-            .Setup(s => s.GetAllAsync(It.IsAny<TaskQueryParams>()))
-            .ReturnsAsync(tasks);
+        // TODO: Configura il service mock per restituire null quando viene chiamato GetByIdAsync
+        // HINT: _serviceMock
+        //     .Setup(s => s.GetByIdAsync("nonexistent"))
+        //     .ReturnsAsync((TaskItem?)null);
 
         // Act
-        var result = await _sut.GetAll(null, null, "false", null, null, null);
+        // TODO: Chiama GetById del controller
+        // HINT: var result = await _sut.GetById("nonexistent");
 
         // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dtos = okResult.Value.Should().BeAssignableTo<IEnumerable<TaskDto>>().Subject;
-        dtos.Should().HaveCount(2);
+        // TODO: Verifica che:
+        // - result.Result sia di tipo NotFoundObjectResult
+        // - StatusCode sia 404
+        // - Value contenga un ErrorDto con Error = "Task not found"
+        // HINT: var notFoundResult = result.Result.Should().BeOfType<NotFoundObjectResult>().Subject;
+        //       notFoundResult.StatusCode.Should().Be(404);
+        //       var error = notFoundResult.Value.Should().BeOfType<ErrorDto>().Subject;
+        //       error.Error.Should().Be("Task not found");
+
+        throw new NotImplementedException("Esercizio 1: Implementa il test NotFound");
     }
 
-    [Fact]
-    public async Task GetAll_ReturnsEmptyList_WhenNoTasks()
-    {
-        // Arrange
-        _serviceMock
-            .Setup(s => s.GetAllAsync(It.IsAny<TaskQueryParams>()))
-            .ReturnsAsync(new List<TaskItem>());
-
-        // Act
-        var result = await _sut.GetAll(null, null, "false", null, null, null);
-
-        // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dtos = okResult.Value.Should().BeAssignableTo<IEnumerable<TaskDto>>().Subject;
-        dtos.Should().BeEmpty();
-    }
-
-    [Theory]
-    [InlineData("todo")]
-    [InlineData("in-progress")]
-    [InlineData("done")]
-    public async Task GetAll_PassesStatusFilter(string status)
-    {
-        // Arrange
-        _serviceMock
-            .Setup(s => s.GetAllAsync(It.IsAny<TaskQueryParams>()))
-            .ReturnsAsync(new List<TaskItem>());
-
-        // Act
-        await _sut.GetAll(status, null, "false", null, null, null);
-
-        // Assert
-        _serviceMock.Verify(s => s.GetAllAsync(It.Is<TaskQueryParams>(q => q.Status != null)), Times.Once);
-    }
-
-    #endregion
-
-    #region GetById Tests
-
+    /// <summary>
+    /// Modulo 3: Unit Test Controller
+    /// Esercizio 2: GetById restituisce Ok con TaskDto quando il task esiste
+    ///
+    /// Obiettivo: Verificare che GetById restituisca 200 OK con il TaskDto corretto
+    /// </summary>
     [Fact]
     public async Task GetById_WhenTaskExists_ReturnsOkWithTask()
     {
@@ -122,43 +87,68 @@ public class TasksControllerTests
             UpdatedAt = DateTime.UtcNow
         };
 
-        _serviceMock
-            .Setup(s => s.GetByIdAsync("123"))
-            .ReturnsAsync(task);
+        // TODO: Configura il service mock per restituire il task
+        // HINT: _serviceMock
+        //     .Setup(s => s.GetByIdAsync("123"))
+        //     .ReturnsAsync(task);
 
         // Act
-        var result = await _sut.GetById("123");
+        // TODO: Chiama GetById del controller
+        // HINT: var result = await _sut.GetById("123");
 
         // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dto = okResult.Value.Should().BeOfType<TaskDto>().Subject;
-        dto.Id.Should().Be("123");
-        dto.Title.Should().Be("Test Task");
+        // TODO: Verifica che:
+        // - result.Result sia di tipo OkObjectResult
+        // - StatusCode sia 200
+        // - Value sia un TaskDto con i dati corretti
+        // HINT: var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
+        //       okResult.StatusCode.Should().Be(200);
+        //       var dto = okResult.Value.Should().BeOfType<TaskDto>().Subject;
+        //       dto.Id.Should().Be("123");
+        //       dto.Title.Should().Be("Test Task");
+
+        throw new NotImplementedException("Esercizio 2: Implementa il test Ok con TaskDto");
     }
 
+    /// <summary>
+    /// Modulo 3: Unit Test Controller
+    /// Esercizio 3: Create con titolo vuoto restituisce BadRequest
+    ///
+    /// Obiettivo: Verificare la validazione del titolo vuoto
+    /// </summary>
     [Fact]
-    public async Task GetById_WhenTaskNotExists_ReturnsNotFound()
+    public async Task Create_WithEmptyTitle_ReturnsBadRequest()
     {
         // Arrange
-        _serviceMock
-            .Setup(s => s.GetByIdAsync("nonexistent"))
-            .ReturnsAsync((TaskItem?)null);
+        var createDto = new CreateTaskDto
+        {
+            Title = "",
+            Description = "Description"
+        };
 
         // Act
-        var result = await _sut.GetById("nonexistent");
+        // TODO: Chiama Create del controller con il DTO
+        // HINT: var result = await _sut.Create(createDto);
 
         // Assert
-        var notFoundResult = result.Result.Should().BeOfType<NotFoundObjectResult>().Subject;
-        notFoundResult.StatusCode.Should().Be(404);
+        // TODO: Verifica che:
+        // - result.Result sia di tipo BadRequestObjectResult
+        // - StatusCode sia 400
+        // - ErrorDto.Error contenga "Title is required"
+        // HINT: var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        //       badRequestResult.StatusCode.Should().Be(400);
+        //       var error = badRequestResult.Value.Should().BeOfType<ErrorDto>().Subject;
+        //       error.Error.Should().Be("Title is required");
 
-        var error = notFoundResult.Value.Should().BeOfType<ErrorDto>().Subject;
-        error.Error.Should().Be("Task not found");
+        throw new NotImplementedException("Esercizio 3: Implementa il test BadRequest per titolo vuoto");
     }
 
-    #endregion
-
-    #region Create Tests
-
+    /// <summary>
+    /// Modulo 3: Unit Test Controller
+    /// Esercizio 4: Create con dati validi restituisce CreatedAtAction
+    ///
+    /// Obiettivo: Verificare che Create restituisca 201 Created con location header
+    /// </summary>
     [Fact]
     public async Task Create_WithValidData_ReturnsCreatedAtAction()
     {
@@ -181,345 +171,86 @@ public class TasksControllerTests
             UpdatedAt = DateTime.UtcNow
         };
 
-        _serviceMock
-            .Setup(s => s.CreateAsync("New Task", "New Description", "high"))
-            .ReturnsAsync(createdTask);
+        // TODO: Configura il service mock per restituire il task creato
+        // HINT: _serviceMock
+        //     .Setup(s => s.CreateAsync("New Task", "New Description", "high"))
+        //     .ReturnsAsync(createdTask);
 
         // Act
-        var result = await _sut.Create(createDto);
+        // TODO: Chiama Create del controller
+        // HINT: var result = await _sut.Create(createDto);
 
         // Assert
-        var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
-        createdResult.StatusCode.Should().Be(201);
-        createdResult.ActionName.Should().Be(nameof(_sut.GetById));
+        // TODO: Verifica che:
+        // - result.Result sia di tipo CreatedAtActionResult
+        // - StatusCode sia 201
+        // - ActionName punti a GetById
+        // - Value contenga il TaskDto con l'ID corretto
+        // HINT: var createdResult = result.Result.Should().BeOfType<CreatedAtActionResult>().Subject;
+        //       createdResult.StatusCode.Should().Be(201);
+        //       createdResult.ActionName.Should().Be(nameof(TasksController.GetById));
+        //       var dto = createdResult.Value.Should().BeOfType<TaskDto>().Subject;
+        //       dto.Id.Should().Be("new-id");
 
-        var dto = createdResult.Value.Should().BeOfType<TaskDto>().Subject;
-        dto.Id.Should().Be("new-id");
-        dto.Title.Should().Be("New Task");
+        throw new NotImplementedException("Esercizio 4: Implementa il test CreatedAtAction");
     }
 
-    [Fact]
-    public async Task Create_WithEmptyTitle_ReturnsBadRequest()
-    {
-        // Arrange
-        var createDto = new CreateTaskDto
-        {
-            Title = "",
-            Description = "Description"
-        };
-
-        // Act
-        var result = await _sut.Create(createDto);
-
-        // Assert
-        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
-
-        var error = badRequestResult.Value.Should().BeOfType<ErrorDto>().Subject;
-        error.Error.Should().Be("Title is required");
-    }
-
-    [Fact]
-    public async Task Create_WithWhitespaceTitle_ReturnsBadRequest()
-    {
-        // Arrange
-        var createDto = new CreateTaskDto
-        {
-            Title = "   ",
-            Description = "Description"
-        };
-
-        // Act
-        var result = await _sut.Create(createDto);
-
-        // Assert
-        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        var error = badRequestResult.Value.Should().BeOfType<ErrorDto>().Subject;
-        error.Error.Should().Be("Title is required");
-    }
-
-    #endregion
-
-    #region Update (PUT) Tests
-
-    [Fact]
-    public async Task Update_WithValidData_ReturnsOkWithUpdatedTask()
-    {
-        // Arrange
-        var updateDto = new UpdateTaskDto
-        {
-            Title = "Updated Title",
-            Description = "Updated Desc",
-            Status = "done",
-            Priority = "high",
-            Archived = false
-        };
-
-        var updatedTask = new TaskItem
-        {
-            Id = "123",
-            Title = "Updated Title",
-            Description = "Updated Desc",
-            Status = KanbanStatus.Done,
-            Priority = TaskPriority.High,
-            Archived = false,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        _serviceMock
-            .Setup(s => s.UpdateAsync("123", It.IsAny<TaskItem>()))
-            .ReturnsAsync(updatedTask);
-
-        // Act
-        var result = await _sut.Update("123", updateDto);
-
-        // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dto = okResult.Value.Should().BeOfType<TaskDto>().Subject;
-        dto.Title.Should().Be("Updated Title");
-        dto.Status.Should().Be("done");
-    }
-
-    [Fact]
-    public async Task Update_WhenTaskNotExists_ReturnsNotFound()
-    {
-        // Arrange
-        var updateDto = new UpdateTaskDto
-        {
-            Title = "Title",
-            Description = "Desc",
-            Status = "todo",
-            Priority = "medium"
-        };
-
-        _serviceMock
-            .Setup(s => s.UpdateAsync("nonexistent", It.IsAny<TaskItem>()))
-            .ReturnsAsync((TaskItem?)null);
-
-        // Act
-        var result = await _sut.Update("nonexistent", updateDto);
-
-        // Assert
-        result.Result.Should().BeOfType<NotFoundObjectResult>();
-    }
-
-    [Theory]
-    [InlineData("", "desc", "todo", "medium")]
-    [InlineData("title", "", "todo", "medium")]
-    [InlineData("title", "desc", "", "medium")]
-    [InlineData("title", "desc", "todo", "")]
-    public async Task Update_WithMissingRequiredFields_ReturnsBadRequest(
-        string title, string description, string status, string priority)
-    {
-        // Arrange
-        var updateDto = new UpdateTaskDto
-        {
-            Title = title,
-            Description = description,
-            Status = status,
-            Priority = priority
-        };
-
-        // Act
-        var result = await _sut.Update("123", updateDto);
-
-        // Assert
-        var badRequestResult = result.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        var error = badRequestResult.Value.Should().BeOfType<ErrorDto>().Subject;
-        error.Error.Should().Contain("required for PUT");
-    }
-
-    #endregion
-
-    #region Patch Tests
-
-    [Fact]
-    public async Task Patch_WithValidData_ReturnsOkWithUpdatedTask()
-    {
-        // Arrange
-        var patchDto = new PatchTaskDto
-        {
-            Title = "Patched Title"
-        };
-
-        var patchedTask = new TaskItem
-        {
-            Id = "123",
-            Title = "Patched Title",
-            Description = "Original Desc",
-            Status = KanbanStatus.Todo,
-            Priority = TaskPriority.Medium,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        _serviceMock
-            .Setup(s => s.PatchAsync("123", It.IsAny<Dictionary<string, object?>>()))
-            .ReturnsAsync(patchedTask);
-
-        // Act
-        var result = await _sut.Patch("123", patchDto);
-
-        // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dto = okResult.Value.Should().BeOfType<TaskDto>().Subject;
-        dto.Title.Should().Be("Patched Title");
-    }
-
-    [Fact]
-    public async Task Patch_WhenTaskNotExists_ReturnsNotFound()
-    {
-        // Arrange
-        var patchDto = new PatchTaskDto { Title = "New Title" };
-
-        _serviceMock
-            .Setup(s => s.PatchAsync("nonexistent", It.IsAny<Dictionary<string, object?>>()))
-            .ReturnsAsync((TaskItem?)null);
-
-        // Act
-        var result = await _sut.Patch("nonexistent", patchDto);
-
-        // Assert
-        result.Result.Should().BeOfType<NotFoundObjectResult>();
-    }
-
-    [Fact]
-    public async Task Patch_WithArchivedFlag_PassesCorrectValue()
-    {
-        // Arrange
-        var patchDto = new PatchTaskDto { Archived = true };
-
-        var patchedTask = new TaskItem
-        {
-            Id = "123",
-            Archived = true,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        Dictionary<string, object?>? capturedUpdates = null;
-
-        _serviceMock
-            .Setup(s => s.PatchAsync("123", It.IsAny<Dictionary<string, object?>>()))
-            .Callback<string, Dictionary<string, object?>>((id, updates) => capturedUpdates = updates)
-            .ReturnsAsync(patchedTask);
-
-        // Act
-        await _sut.Patch("123", patchDto);
-
-        // Assert
-        capturedUpdates.Should().NotBeNull();
-        capturedUpdates!.Should().ContainKey("archived");
-        capturedUpdates["archived"].Should().Be(true);
-    }
-
-    #endregion
-
-    #region Delete Tests
-
+    /// <summary>
+    /// Modulo 3: Unit Test Controller
+    /// Esercizio 5: Delete quando il task esiste restituisce NoContent
+    ///
+    /// Obiettivo: Verificare che Delete restituisca 204 NoContent
+    /// </summary>
     [Fact]
     public async Task Delete_WhenTaskExists_ReturnsNoContent()
     {
         // Arrange
-        _serviceMock
-            .Setup(s => s.DeleteAsync("123"))
-            .ReturnsAsync(true);
+        // TODO: Configura il service mock per restituire true (delete riuscito)
+        // HINT: _serviceMock
+        //     .Setup(s => s.DeleteAsync("123"))
+        //     .ReturnsAsync(true);
 
         // Act
-        var result = await _sut.Delete("123");
+        // TODO: Chiama Delete del controller
+        // HINT: var result = await _sut.Delete("123");
 
         // Assert
-        result.Should().BeOfType<NoContentResult>();
+        // TODO: Verifica che result sia di tipo NoContentResult (204)
+        // HINT: result.Should().BeOfType<NoContentResult>();
+        //       (result as NoContentResult)!.StatusCode.Should().Be(204);
+
+        throw new NotImplementedException("Esercizio 5: Implementa il test NoContent per Delete");
     }
 
+    /// <summary>
+    /// Modulo 3: Unit Test Controller
+    /// Esercizio 6: Delete quando il task non esiste restituisce NotFound
+    ///
+    /// Obiettivo: Verificare che Delete restituisca 404 NotFound con ErrorDto
+    /// </summary>
     [Fact]
     public async Task Delete_WhenTaskNotExists_ReturnsNotFound()
     {
         // Arrange
-        _serviceMock
-            .Setup(s => s.DeleteAsync("nonexistent"))
-            .ReturnsAsync(false);
+        // TODO: Configura il service mock per restituire false (task non trovato)
+        // HINT: _serviceMock
+        //     .Setup(s => s.DeleteAsync("nonexistent"))
+        //     .ReturnsAsync(false);
 
         // Act
-        var result = await _sut.Delete("nonexistent");
+        // TODO: Chiama Delete del controller
+        // HINT: var result = await _sut.Delete("nonexistent");
 
         // Assert
-        var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Subject;
-        var error = notFoundResult.Value.Should().BeOfType<ErrorDto>().Subject;
-        error.Error.Should().Be("Task not found");
+        // TODO: Verifica che:
+        // - result sia di tipo NotFoundObjectResult
+        // - StatusCode sia 404
+        // - ErrorDto.Error sia "Task not found"
+        // HINT: var notFoundResult = result.Should().BeOfType<NotFoundObjectResult>().Subject;
+        //       notFoundResult.StatusCode.Should().Be(404);
+        //       var error = notFoundResult.Value.Should().BeOfType<ErrorDto>().Subject;
+        //       error.Error.Should().Be("Task not found");
+
+        throw new NotImplementedException("Esercizio 6: Implementa il test NotFound per Delete");
     }
-
-    [Fact]
-    public async Task Delete_CallsServiceWithCorrectId()
-    {
-        // Arrange
-        _serviceMock
-            .Setup(s => s.DeleteAsync(It.IsAny<string>()))
-            .ReturnsAsync(true);
-
-        // Act
-        await _sut.Delete("specific-id");
-
-        // Assert
-        _serviceMock.Verify(s => s.DeleteAsync("specific-id"), Times.Once);
-    }
-
-    #endregion
-
-    #region Status and Priority Mapping Tests
-
-    [Theory]
-    [InlineData(KanbanStatus.Todo, "todo")]
-    [InlineData(KanbanStatus.InProgress, "in-progress")]
-    [InlineData(KanbanStatus.Done, "done")]
-    public async Task GetById_MapsStatusCorrectly(KanbanStatus status, string expected)
-    {
-        // Arrange
-        var task = new TaskItem
-        {
-            Id = "123",
-            Status = status,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        _serviceMock.Setup(s => s.GetByIdAsync("123")).ReturnsAsync(task);
-
-        // Act
-        var result = await _sut.GetById("123");
-
-        // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dto = okResult.Value.Should().BeOfType<TaskDto>().Subject;
-        dto.Status.Should().Be(expected);
-    }
-
-    [Theory]
-    [InlineData(TaskPriority.Low, "low")]
-    [InlineData(TaskPriority.Medium, "medium")]
-    [InlineData(TaskPriority.High, "high")]
-    public async Task GetById_MapsPriorityCorrectly(TaskPriority priority, string expected)
-    {
-        // Arrange
-        var task = new TaskItem
-        {
-            Id = "123",
-            Priority = priority,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        _serviceMock.Setup(s => s.GetByIdAsync("123")).ReturnsAsync(task);
-
-        // Act
-        var result = await _sut.GetById("123");
-
-        // Assert
-        var okResult = result.Result.Should().BeOfType<OkObjectResult>().Subject;
-        var dto = okResult.Value.Should().BeOfType<TaskDto>().Subject;
-        dto.Priority.Should().Be(expected);
-    }
-
-    #endregion
 }

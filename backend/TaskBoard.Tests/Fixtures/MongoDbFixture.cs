@@ -3,6 +3,7 @@ using MongoDB.Driver;
 using TaskBoard.Infrastructure.Configuration;
 using TaskBoard.Infrastructure.Models;
 using Testcontainers.MongoDb;
+using Xunit;
 
 namespace TaskBoard.Tests.Fixtures;
 
