@@ -91,14 +91,14 @@ public class TaskService : ITaskService
         return await _repository.DeleteAsync(id);
     }
 
-    private static TaskPriority ParsePriority(string? priority) => priority?.ToLower() switch
+    public static TaskPriority ParsePriority(string? priority) => priority?.ToLower() switch
     {
         "low" => TaskPriority.Low,
         "high" => TaskPriority.High,
         _ => TaskPriority.Medium
     };
 
-    private static KanbanStatus ParseStatus(string status) => status.ToLower() switch
+    public static KanbanStatus ParseStatus(string status) => status.ToLower() switch
     {
         "in-progress" => KanbanStatus.InProgress,
         "done" => KanbanStatus.Done,

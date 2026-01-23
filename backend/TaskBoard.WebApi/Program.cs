@@ -59,3 +59,6 @@ app.MapGet("/health", () => Results.Ok(new
 }));
 
 app.Run();
+
+// Required for WebApplicationFactory access in integration tests
+public partial class Program { }

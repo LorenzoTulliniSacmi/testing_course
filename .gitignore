@@ -109,3 +109,7 @@ docker-compose.override.yml
 *.tmp
 *.temp
 *.bak
+/backend/CLAUDE.md
+/CLAUDE.md
+/.claude
+*.pptx
