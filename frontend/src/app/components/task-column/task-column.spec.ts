@@ -1,8 +1,8 @@
-import { DebugElement, outputBinding } from '@angular/core';
+import { DebugElement, inputBinding, outputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
 import { vi } from 'vitest';
-import { createMockTask, Task } from '../../models/task.model';
+import { createMockTask, Task, TaskStatus } from '../../models/task.model';
 import { TaskColumnComponent, type TaskMoveData } from './task-column';
 
 function createDragEvent(type: string, data?: string): DragEvent {
@@ -21,6 +21,10 @@ describe('TaskColumnComponent', () => {
   let taskDelete: string | null;
   let taskArchive: string | null;
 
+  const statusSignal = signal<TaskStatus>('todo');
+  const titleSignal = signal<string>('To Do');
+  const tasksSignal = signal<Task[]>([]);
+
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [TaskColumnComponent],
@@ -28,6 +32,9 @@ describe('TaskColumnComponent', () => {
 
     fixture = TestBed.createComponent(TaskColumnComponent, {
       bindings: [
+        inputBinding('status',statusSignal),
+        inputBinding('title', titleSignal),
+        inputBinding('tasks', tasksSignal),
         outputBinding('taskEdit', (task: Task) => { taskEdit = task; }),
         outputBinding('taskMove', (data: TaskMoveData) => { taskMove = data; }),
         outputBinding('taskDelete', (taskId: string) => { taskDelete = taskId; }),
@@ -47,9 +54,9 @@ describe('TaskColumnComponent', () => {
 
   describe('Rendering', () => {
     it('displays column title and renders task cards', () => {
-      fixture.componentRef.setInput('status', 'in-progress');
-      fixture.componentRef.setInput('title','In Progress');
-      fixture.componentRef.setInput('tasks', [
+      statusSignal.set('in-progress');
+      titleSignal.set('In Progress');
+      tasksSignal.set([
         createMockTask({ id: '1', title: 'Task 1' }),
         createMockTask({ id: '2', title: 'Task 2' })
       ]);
@@ -65,8 +72,8 @@ describe('TaskColumnComponent', () => {
 
   describe('Drag and Drop', () => {
     it('handles drag events and emits taskMove on valid drop', () => {
-      fixture.componentRef.setInput('status', 'in-progress');
-      fixture.componentRef.setInput('title', 'In Progress');
+      statusSignal.set('in-progress');
+      titleSignal.set('In Progress');
       fixture.detectChanges();
 
       const columnElement = fixture.debugElement.query(By.css('.column')).nativeElement;
@@ -93,7 +100,7 @@ describe('TaskColumnComponent', () => {
     });
 
     it('does not emit taskMove for empty dataTransfer', () => {
-      fixture.componentRef.setInput('status', 'done');
+      statusSignal.set('done');
       fixture.detectChanges();
 
       const columnElement = fixture.debugElement.query(By.css('.column')).nativeElement;
@@ -105,7 +112,7 @@ describe('TaskColumnComponent', () => {
 
   describe('Output Events', () => {
     beforeEach(() => {
-      fixture.componentRef.setInput('tasks', [createMockTask({ id: 'task-1', title: 'Test Task' })]);
+      tasksSignal.set([createMockTask({ id: 'task-1', title: 'Test Task' })]);
       fixture.detectChanges();
     });
 
@@ -127,9 +134,11 @@ describe('TaskColumnComponent', () => {
     });
 
     it('emits taskArchive for done column tasks', () => {
-      fixture.componentRef.setInput('status', 'done');
-      fixture.componentRef.setInput('title', 'Done');
-      fixture.componentRef.setInput('tasks', [createMockTask({ id: 'done-task', status: 'done' })]);
+      statusSignal.set('done');
+      titleSignal.set('Done');
+      tasksSignal.set([
+        createMockTask({ id: 'done-task', title: 'Done task' }),
+      ]);
       fixture.detectChanges();
 
       const archiveButton = fixture.debugElement.query(By.css('.btn-icon[title="Archive"]'));

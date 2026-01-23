@@ -33,8 +33,29 @@
     }
   }
 
-  .btn-add {
+  .header-actions {
+    display: flex;
+    gap: 0.75rem;
     margin-left: auto;
+  }
+
+  .btn-archive {
+    padding: 0.625rem 1.25rem;
+    background: #6c757d;
+    color: white;
+    border: none;
+    border-radius: 0.5rem;
+    font-size: 1rem;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #5a6268;
+    }
+  }
+
+  .btn-add {
     padding: 0.625rem 1.25rem;
     background: #4361ee;
     color: white;

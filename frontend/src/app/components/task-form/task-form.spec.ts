@@ -1,8 +1,8 @@
-import { ComponentFixture, TestBed } from "@angular/core/testing";
-import { TaskFormComponent } from "./task-form";
-import { By } from "@angular/platform-browser";
-import { createMockTask, TaskFormData } from "../../models/task.model";
-import { DebugElement } from "@angular/core";
+import { ComponentFixture, TestBed } from '@angular/core/testing';
+import { TaskFormComponent } from './task-form';
+import { By } from '@angular/platform-browser';
+import { createMockTask, TaskFormData } from '../../models/task.model';
+import { DebugElement } from '@angular/core';
 
 describe('TaskFormComponent', () => {
   let fixture: ComponentFixture<TaskFormComponent>;
@@ -28,7 +28,7 @@ describe('TaskFormComponent', () => {
       formClosed = true;
     });
 
-    fixture.detectChanges();
+    await fixture.whenStable();
   });
 
   describe('Form Validation', () => {
@@ -37,7 +37,9 @@ describe('TaskFormComponent', () => {
       debugEl.query(By.css('button[type="submit"]')).nativeElement.click();
       fixture.detectChanges();
 
-      expect(debugEl.query(By.css('.error')).nativeElement.textContent).toContain('Title is required');
+      expect(debugEl.query(By.css('.error')).nativeElement.textContent).toContain(
+        'Title is required',
+      );
       expect(emittedData).toBeNull();
 
       // Title too short
@@ -47,7 +49,9 @@ describe('TaskFormComponent', () => {
       debugEl.query(By.css('button[type="submit"]')).nativeElement.click();
       fixture.detectChanges();
 
-      expect(debugEl.query(By.css('.error')).nativeElement.textContent).toContain('at least 3 characters');
+      expect(debugEl.query(By.css('.error')).nativeElement.textContent).toContain(
+        'at least 3 characters',
+      );
       expect(emittedData).toBeNull();
     });
 
@@ -63,7 +67,7 @@ describe('TaskFormComponent', () => {
       expect(emittedData).toEqual({
         title: 'Valid Title',
         description: '',
-        priority: 'medium'
+        priority: 'medium',
       });
       expect(formClosed).toBe(true);
     });
@@ -71,7 +75,9 @@ describe('TaskFormComponent', () => {
 
   describe('Create vs Edit Mode', () => {
     it('shows "New Task" header and empty fields in create mode', () => {
-      expect(debugEl.query(By.css('.modal-header h2')).nativeElement.textContent).toContain('New Task');
+      expect(debugEl.query(By.css('.modal-header h2')).nativeElement.textContent).toContain(
+        'New Task',
+      );
       expect(debugEl.query(By.css('#title')).nativeElement.value).toBe('');
     });
 
@@ -81,7 +87,9 @@ describe('TaskFormComponent', () => {
       fixture.componentInstance.ngOnInit();
       fixture.detectChanges();
 
-      expect(debugEl.query(By.css('.modal-header h2')).nativeElement.textContent).toContain('Edit Task');
+      expect(debugEl.query(By.css('.modal-header h2')).nativeElement.textContent).toContain(
+        'Edit Task',
+      );
       expect(debugEl.query(By.css('#title')).nativeElement.value).toBe('Existing');
       expect(debugEl.query(By.css('#description')).nativeElement.value).toBe('Desc');
       expect(debugEl.query(By.css('#priority')).nativeElement.value).toBe('high');
@@ -104,7 +112,7 @@ describe('TaskFormComponent', () => {
       expect(emittedData).toEqual({
         title: 'New Task',
         description: 'Description',
-        priority: 'high'
+        priority: 'high',
       });
     });
   });

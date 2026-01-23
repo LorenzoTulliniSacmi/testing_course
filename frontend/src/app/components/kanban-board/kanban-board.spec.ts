@@ -3,6 +3,7 @@ import { KanbanBoardComponent } from "./kanban-board";
 import { provideHttpClient } from "@angular/common/http";
 import { HttpTestingController, provideHttpClientTesting } from "@angular/common/http/testing";
 import { By } from "@angular/platform-browser";
+import { provideRouter } from "@angular/router";
 
 const mockTasks = [
   { id: '1', title: 'Todo Task', status: 'todo', priority: 'high', archived: false, createdAt: '2024-01-01T00:00:00Z', updatedAt: '2024-01-01T00:00:00Z' },
@@ -20,6 +21,7 @@ describe('KanbanBoardComponent', () => {
     await TestBed.configureTestingModule({
       imports: [KanbanBoardComponent],
       providers: [
+        provideRouter([]),
         provideHttpClient(),
         provideHttpClientTesting()
       ]

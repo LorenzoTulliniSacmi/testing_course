@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
 import { TaskService } from '../../services/task.service';
 import { TaskColumnComponent } from '../task-column/task-column';
 import { TaskFormComponent } from '../task-form/task-form';
@@ -6,7 +7,7 @@ import { Task, TaskFormData, TaskStatus, ColumnConfig } from '../../models/task.
 
 @Component({
   selector: 'app-kanban-board',
-  imports: [TaskColumnComponent, TaskFormComponent],
+  imports: [TaskColumnComponent, TaskFormComponent, RouterLink],
   templateUrl: './kanban-board.html',
   styleUrl: './kanban-board.scss'
 })

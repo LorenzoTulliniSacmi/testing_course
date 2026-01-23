@@ -25,6 +25,9 @@ export class TaskService {
   // Computed signal for active (non-archived) tasks
   activeTasks = computed(() => this.tasks().filter(t => !t.archived));
 
+  // Computed signal for archived tasks
+  archivedTasks = computed(() => this.tasks().filter(t => t.archived));
+
   // Computed signal for task counts (excludes archived)
   taskCounts = computed(() => {
     const activeTasks = this.tasks().filter(t => !t.archived);
@@ -102,6 +105,18 @@ export class TaskService {
         );
       },
       error: (err) => console.error('Failed to archive task:', err)
+    });
+  }
+
+  unarchiveTask(id: string): void {
+    this.http.patch<ApiTask>(`${API_URL}/${id}`, { archived: false }).subscribe({
+      next: (apiTask) => {
+        const updatedTask = this.mapApiTask(apiTask);
+        this.tasks.update(tasks =>
+          tasks.map(task => task.id === id ? updatedTask : task)
+        );
+      },
+      error: (err) => console.error('Failed to unarchive task:', err)
     });
   }
 

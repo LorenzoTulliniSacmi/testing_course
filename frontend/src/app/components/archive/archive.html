@@ -1,0 +1,39 @@
+<div class="archive-container">
+  <header class="archive-header">
+    <h1>Archived Tasks</h1>
+    <div class="archive-stats">
+      <span class="stat">{{ archivedTasks().length }} archived task(s)</span>
+    </div>
+    <a routerLink="/" class="btn-back">Back to Board</a>
+  </header>
+
+  @if (archivedTasks().length === 0) {
+    <div class="empty-state">
+      <p>No archived tasks</p>
+      <a routerLink="/" class="btn-back">Return to Board</a>
+    </div>
+  } @else {
+    <div class="archive-list">
+      @for (task of archivedTasks(); track task.id) {
+        <div class="archived-task-card">
+          <div class="task-meta">
+            <span class="priority-badge" [class]="task.priority">{{ task.priority }}</span>
+            <span class="status-badge" [class]="task.status">{{ task.status }}</span>
+          </div>
+          <h3 class="task-title">{{ task.title }}</h3>
+          @if (task.description) {
+            <p class="task-description">{{ task.description }}</p>
+          }
+          <div class="task-actions">
+            <button class="btn-restore" (click)="onUnarchive(task.id)">
+              Restore
+            </button>
+            <button class="btn-delete" (click)="onDelete(task.id)">
+              Delete Permanently
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>
