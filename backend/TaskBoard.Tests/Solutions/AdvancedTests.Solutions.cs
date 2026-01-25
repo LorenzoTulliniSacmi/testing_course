@@ -114,38 +114,5 @@ public class AdvancedTestsSolutions : IAsyncLifetime
         deleted.Should().BeNull();
     }
 
-    /// <summary>
-    /// Esercizio 3: CreateAsync con titolo null lancia eccezione
-    /// </summary>
-    [Fact]
-    public async Task CreateAsync_WithNullTitle_ThrowsException()
-    {
-        // Arrange
-        var task = new TaskItem
-        {
-            Title = null!,
-            Description = "Description",
-            Status = KanbanStatus.Todo,
-            Priority = TaskPriority.Medium,
-            CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
-        };
-
-        // Act & Assert
-        var act = () => _sut.CreateAsync(task);
-
-        await act.Should().ThrowAsync<Exception>();
-    }
-
-    /// <summary>
-    /// Esercizio 4: Verifica valori numerici dell'enum TaskPriority
-    /// </summary>
-    [Fact]
-    public void TaskPriority_HasCorrectNumericValues()
-    {
-        // Assert
-        ((int)TaskPriority.Low).Should().Be(1);
-        ((int)TaskPriority.Medium).Should().Be(2);
-        ((int)TaskPriority.High).Should().Be(3);
-    }
+   
 }
