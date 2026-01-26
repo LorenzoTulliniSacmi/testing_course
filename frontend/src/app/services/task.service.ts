@@ -123,30 +123,4 @@ export class TaskService {
   getTaskById(id: string): Task | undefined {
     return this.tasks().find(task => task.id === id);
   }
-
-  // EXERCISE 1: Implement this method
-  // Filter tasks by priority - returns tasks matching the given priority
-  // Hint: Use the tasks signal and filter
-  filterByPriority(priority: TaskPriority): Task[] {
-    // TODO: Implement this method
-    throw new Error('Not implemented - Exercise 1');
-  }
-
-  // EXERCISE 2: Implement this method
-  // Search tasks by title (case-insensitive)
-  // Hint: Use toLowerCase() for case-insensitive comparison
-  searchTasks(query: string): Task[] {
-    // TODO: Implement this method
-    throw new Error('Not implemented - Exercise 2');
-  }
-
-  // For testing purposes - clears all tasks
-  clearAll(): void {
-    this.tasks.set([]);
-  }
-
-  // For testing purposes - set tasks directly
-  setTasks(tasks: Task[]): void {
-    this.tasks.set(tasks);
-  }
 }

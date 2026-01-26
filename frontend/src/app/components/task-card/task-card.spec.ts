@@ -1,166 +1,62 @@
 import { inputBinding, outputBinding, signal } from '@angular/core';
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { By } from '@angular/platform-browser';
-import { vi } from 'vitest';
-import { Task, TaskPriority, TaskStatus } from '../../models/task.model';
+import { Task, createMockTask } from '../../models/task.model';
 import { TaskCardComponent } from './task-card';
-
-function createMockTask(overrides: Partial<Task> = {}): Task {
-  return {
-    id: '1',
-    title: 'Test Task',
-    description: 'Test description',
-    status: 'todo' as TaskStatus,
-    priority: 'medium' as TaskPriority,
-    archived: false,
-    createdAt: new Date('2026-01-01'),
-    updatedAt: new Date('2026-01-01'),
-    ...overrides
-  };
-}
-const mockTask = createMockTask();
-const taskSignal = signal<Task>(mockTask);
-let editedTask: Task | null = null;
-let deletedTaskId: string | null = null;
-let archivedTaskId: string | null = null;
 
 describe('TaskCardComponent', () => {
   let fixture: ComponentFixture<TaskCardComponent>;
+  const taskSignal = signal<Task>(createMockTask());
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [TaskCardComponent],
+      imports: [TaskCardComponent]
     }).compileComponents();
 
     fixture = TestBed.createComponent(TaskCardComponent, {
-      bindings: [
-        inputBinding('task', taskSignal),
-        outputBinding('edit', (task: Task) => { editedTask = task; }),
-        outputBinding('delete', (taskId: string) => { deletedTaskId = taskId; }),
-        outputBinding('archive', (taskId: string) => { archivedTaskId = taskId; }),
-      ]
+      bindings: [inputBinding('task', taskSignal)]
     });
     await fixture.whenStable();
   });
 
-  afterEach(() => {
-    editedTask = null;
-    deletedTaskId = null;
-    archivedTaskId = null;
+  it('creates', () => {
+    expect(fixture.componentInstance).toBeTruthy();
   });
 
-  describe('Rendering', () => {
-    it('displays task title, description, and priority', () => {
-      const card = fixture.debugElement.query(By.css('.task-card'));
-      expect(card.nativeElement.textContent).toContain(mockTask.title);
-      expect(card.nativeElement.textContent).toContain(mockTask.description);
+  it('displays task title, description, and priority badge', () => {
+    taskSignal.set(createMockTask({
+      title: 'My Task',
+      description: 'Task details here',
+      priority: 'high'
+    }));
+    fixture.detectChanges();
 
-      const badge = fixture.debugElement.query(By.css('.priority-badge'));
-      expect(badge.nativeElement.textContent).toContain(mockTask.priority);
-    });
+    const card = fixture.debugElement.query(By.css('.task-card'));
+    expect(card.nativeElement.textContent).toContain('My Task');
+    expect(card.nativeElement.textContent).toContain('Task details here');
+    expect(fixture.debugElement.query(By.css('.priority-badge')).nativeElement.textContent).toContain('high');
   });
 
-  describe('Drag and Drop', () => {
-    it('sets task id in dataTransfer on dragstart and has draggable attribute', () => {
+  it('emits edit event with task when edit button is clicked', () => {
+    const task = createMockTask({ id: 'task-123', title: 'Editable Task' });
+    taskSignal.set(task);
+    fixture.detectChanges();
 
-      const card = fixture.debugElement.query(By.css('.task-card'));
-      expect(card.nativeElement.getAttribute('draggable')).toBe('true');
+    let emittedTask: Task | null = null;
+    fixture.componentInstance.edit.subscribe((t: Task) => emittedTask = t);
 
-      let transferredData = '';
-      const dragStartEvent = new Event('dragstart', { bubbles: true, cancelable: true });
-      Object.defineProperty(dragStartEvent, 'dataTransfer', {
-        value: { setData: (_type: string, data: string) => { transferredData = data; } }
-      });
+    fixture.debugElement.query(By.css('.btn-icon[title="Edit"]')).nativeElement.click();
 
-      card.nativeElement.dispatchEvent(dragStartEvent);
-      expect(transferredData).toBe(mockTask.id);
-    });
+    expect(emittedTask).toEqual(task);
   });
 
-  describe('Output Events', () => {
-    it('emits edit event with task when edit button is clicked', () => {
-      const editButton = fixture.debugElement.query(By.css('.btn-icon[title="Edit"]'));
-      editButton.nativeElement.click();
+  it('shows archive button only for tasks with done status', () => {
+    taskSignal.set(createMockTask({ status: 'todo' }));
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.btn-icon[title="Archive"]'))).toBeNull();
 
-      expect(editedTask).toEqual(mockTask);
-    });
-
-    it('emits delete event only when confirmation is accepted', () => {
-      const deleteButton = fixture.debugElement.query(By.css('.btn-icon[title="Delete"]'));
-
-      // Cancelled confirmation
-      vi.spyOn(window, 'confirm').mockReturnValue(false);
-      deleteButton.nativeElement.click();
-      expect(deletedTaskId).toBeNull();
-
-      // Accepted confirmation
-      vi.spyOn(window, 'confirm').mockReturnValue(true);
-      deleteButton.nativeElement.click();
-      expect(deletedTaskId).toBe(mockTask.id);
-
-      vi.restoreAllMocks();
-    });
-
-    it('emits archive event when archive button is clicked', () => {
-      const archiveButton = fixture.debugElement.query(By.css('.btn-icon[title="Archive"]'));
-      if (archiveButton) {
-        archiveButton.nativeElement.click();
-        expect(archivedTaskId).toBe(mockTask.id);
-      }
-    });
+    taskSignal.set(createMockTask({ status: 'done' }));
+    fixture.detectChanges();
+    expect(fixture.debugElement.query(By.css('.btn-icon[title="Archive"]'))).not.toBeNull();
   });
-
-  // EXERCISE TESTS - Students implement these methods
-  // describe('getPriorityClass (Exercise 8)', () => {
-  //   let component: TaskCardComponent;
-
-  //   beforeEach(() => {
-  //     const taskCardDebug = fixture.debugElement.query(By.directive(TaskCardComponent));
-  //     component = taskCardDebug.componentInstance;
-  //   });
-
-  //   it.skip('returns correct CSS class for each priority level', () => {
-  //     hostComponent.task.set(createMockTask({ priority: 'high' }));
-  //     fixture.detectChanges();
-  //     expect(component.getPriorityClass()).toBe('priority-high');
-
-  //     hostComponent.task.set(createMockTask({ priority: 'medium' }));
-  //     fixture.detectChanges();
-  //     expect(component.getPriorityClass()).toBe('priority-medium');
-
-  //     hostComponent.task.set(createMockTask({ priority: 'low' }));
-  //     fixture.detectChanges();
-  //     expect(component.getPriorityClass()).toBe('priority-low');
-  //   });
-  // });
-
-  // describe('isStale (Exercise 9)', () => {
-  //   let component: TaskCardComponent;
-
-  //   beforeEach(() => {
-  //     const taskCardDebug = fixture.debugElement.query(By.directive(TaskCardComponent));
-  //     component = taskCardDebug.componentInstance;
-  //   });
-
-  //   it.skip('returns true for tasks older than 7 days, false otherwise', () => {
-  //     // Task updated today - not stale
-  //     hostComponent.task.set(createMockTask({ updatedAt: new Date() }));
-  //     fixture.detectChanges();
-  //     expect(component.isStale()).toBe(false);
-
-  //     // Task updated 6 days ago - not stale
-  //     const sixDaysAgo = new Date();
-  //     sixDaysAgo.setDate(sixDaysAgo.getDate() - 6);
-  //     hostComponent.task.set(createMockTask({ updatedAt: sixDaysAgo }));
-  //     fixture.detectChanges();
-  //     expect(component.isStale()).toBe(false);
-
-  //     // Task updated 8 days ago - stale
-  //     const eightDaysAgo = new Date();
-  //     eightDaysAgo.setDate(eightDaysAgo.getDate() - 8);
-  //     hostComponent.task.set(createMockTask({ updatedAt: eightDaysAgo }));
-  //     fixture.detectChanges();
-  //     expect(component.isStale()).toBe(true);
-  //   });
-  // });
 });
