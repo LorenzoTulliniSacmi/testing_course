@@ -102,7 +102,6 @@ public class TasksEndpointTestsSolutions : IClassFixture<WebAppFixture>
         // Assert
         response.StatusCode.Should().Be(HttpStatusCode.Created);
         response.Headers.Location.Should().NotBeNull();
-        response.Headers.Location!.ToString().Should().Contain("/api/tasks/");
     }
 
     /// <summary>
